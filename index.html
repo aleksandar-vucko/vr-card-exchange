@@ -169,11 +169,11 @@ tr:{shards:"Joker",shardTitle:"Joker parçalar",shardNote:"Joker parçalar herha
 es:{shards:"Fragmentos",shardTitle:"Fragmentos genéricos",shardNote:"Los fragmentos sustituyen cualquier pieza que falte. Solo se sugieren para faltantes: piezas que nadie del equipo te puede dar. Primero doradas, luego los álbumes más cerca de completarse.",use:"Usar",used:"Fragmento usado en {x}",noShardTips:"Ahora no hay sugerencias de fragmentos."},
 fr:{shards:"Fragments",shardTitle:"Fragments génériques",shardNote:"Les fragments remplacent n'importe quelle pièce manquante. Ils sont proposés seulement pour les manques : des pièces que personne dans l'équipe ne peut t'échanger. D'abord les dorées, puis les albums les plus proches d'être complets.",use:"Utiliser",used:"Fragment utilisé pour {x}",noShardTips:"Aucune suggestion de fragment pour le moment."}};
 const EXTRA2={
-en:{today:"Today",tomorrow:"Tomorrow",daysLbl:"Days",goldPieces:"Gold pieces",forecastNote:"Days after today assume nobody gets new pieces. The plan is recalculated whenever albums change, so check it again each day."},
-de:{today:"Heute",tomorrow:"Morgen",daysLbl:"Tage",goldPieces:"Goldteile",forecastNote:"Die Tage nach heute gehen davon aus, dass niemand neue Teile bekommt. Der Plan wird bei jeder Änderung an den Alben neu berechnet, schau also jeden Tag wieder rein."},
-tr:{today:"Bugün",tomorrow:"Yarın",daysLbl:"Gün",goldPieces:"Altın parçalar",forecastNote:"Bugünden sonraki günler kimsenin yeni parça almadığını varsayar. Plan albümler her değiştiğinde yeniden hesaplanır, bu yüzden her gün tekrar kontrol et."},
-es:{today:"Hoy",tomorrow:"Mañana",daysLbl:"Días",goldPieces:"Piezas doradas",forecastNote:"Los días posteriores a hoy suponen que nadie consigue piezas nuevas. El plan se recalcula cada vez que cambian los álbumes, así que revísalo cada día."},
-fr:{today:"Aujourd'hui",tomorrow:"Demain",daysLbl:"Jours",goldPieces:"Pièces dorées",forecastNote:"Les jours suivants supposent que personne ne reçoit de nouvelles pièces. Le plan est recalculé à chaque changement dans les albums, alors consulte-le chaque jour."}};
+en:{imported:"Imported albums for {n}",today:"Today",tomorrow:"Tomorrow",daysLbl:"Days",goldPieces:"Gold pieces",forecastNote:"Days after today assume nobody gets new pieces. The plan is recalculated whenever albums change, so check it again each day."},
+de:{imported:"Alben importiert für {n}",today:"Heute",tomorrow:"Morgen",daysLbl:"Tage",goldPieces:"Goldteile",forecastNote:"Die Tage nach heute gehen davon aus, dass niemand neue Teile bekommt. Der Plan wird bei jeder Änderung an den Alben neu berechnet, schau also jeden Tag wieder rein."},
+tr:{imported:"Albümler içe aktarıldı: {n}",today:"Bugün",tomorrow:"Yarın",daysLbl:"Gün",goldPieces:"Altın parçalar",forecastNote:"Bugünden sonraki günler kimsenin yeni parça almadığını varsayar. Plan albümler her değiştiğinde yeniden hesaplanır, bu yüzden her gün tekrar kontrol et."},
+es:{imported:"Álbumes importados para {n}",today:"Hoy",tomorrow:"Mañana",daysLbl:"Días",goldPieces:"Piezas doradas",forecastNote:"Los días posteriores a hoy suponen que nadie consigue piezas nuevas. El plan se recalcula cada vez que cambian los álbumes, así que revísalo cada día."},
+fr:{imported:"Albums importés pour {n}",today:"Aujourd'hui",tomorrow:"Demain",daysLbl:"Jours",goldPieces:"Pièces dorées",forecastNote:"Les jours suivants supposent que personne ne reçoit de nouvelles pièces. Le plan est recalculé à chaque changement dans les albums, alors consulte-le chaque jour."}};
 const ALBN={
 de:{g1:"Verschneite Polarlichtnacht",g2:"Bund des Schicksals",g3:"Blumiges Meeresleuchten",g4:"Romantische Reise",g5:"Mondscheinritual",g6:"Hirsch im Wald",p1:"Erntekarawane",p2:"Schneewolfrudel",p3:"Flüsterndes Ufer",p4:"Lagerfeuer-Gala",p5:"Zeit des Feierns",p6:"Ländliches Festmahl",b1:"Schatzexpedition",b2:"Vorteil des Helden",b3:"Phantomschatz",b4:"Sternenlicht auf Schnee"},
 tr:{g1:"Karlı Kutup Işığı Gecesi",g2:"Kader Ahdi",g3:"Çiçekli Okyanus Işıltısı",g4:"Romantik Yolculuk",g5:"Ay Işığı Ayini",g6:"Ormandaki Geyik",p1:"Hasat Kervanı",p2:"Kar Kurdu Sürüsü",p3:"Fısıldayan Kıyı",p4:"Şenlik Ateşi Galası",p5:"Kutlama Zamanı",p6:"Kır Ziyafeti",b1:"Hazine Seferi",b2:"Kahramanın Üstünlüğü",b3:"Hayalet Hazine",b4:"Karda Yıldız Işığı"},
@@ -464,11 +464,34 @@ document.addEventListener('submit',async e=>{
   try{await S.api.setPlayer(id,{name,order,shards:0,a:emptyAlbums()});$('#newname').value='';S.sel=id;toast(T('added',{n:name}))}catch(err){handleWriteErr(err)}
 });
 
+/* ---------- imports from imports.json (pushed to the repo) ---------- */
+let importsRun=false;
+async function runImports(){
+  if(importsRun||!FIREBASE_CONFIG||!S.api||!S.loaded||!S.configLoaded||S.ro)return;importsRun=true;
+  let data;try{const r=await fetch('imports.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;data=await r.json()}catch(_){return}
+  const applied=new Set(S.config.applied||[]);const todo=(data.imports||[]).filter(x=>x&&x.id&&!applied.has(x.id));
+  if(!todo.length)return;
+  const names=[];
+  for(const im of todo){
+    try{
+      const id=slug(String(im.player||''));if(!id)continue;
+      const albums={};for(const k in (im.albums||{}))if(ALB[k]&&typeof im.albums[k]==='string'&&new RegExp('^[0-9]{'+ALB[k].n+'}$').test(im.albums[k]))albums[k]=im.albums[k];
+      const sh=Number.isFinite(im.shards)?Math.max(0,Math.round(im.shards)):null;
+      if(!S.players[id]){const order=Math.max(0,...playerList().map(p=>p.order||0))+1;const a=emptyAlbums();Object.assign(a,albums);
+        await S.api.setPlayer(id,{name:String(im.player),order,shards:sh??0,a});}
+      else await S.api.updatePlayer(id,albums,sh);
+      applied.add(im.id);names.push(String(im.player));
+    }catch(e){console.warn('import failed',im.id,e)}
+  }
+  try{await S.api.setConfig({applied:[...applied].slice(-500)})}catch(_){}
+  if(names.length)toast(T('imported',{n:[...new Set(names)].join(', ')}));
+}
+
 /* ---------- boot ---------- */
 function startSubs(){
-  S.api.subPlayers(list=>{const m={};for(const v of list)m[v.id]={id:v.id,name:v.name||v.id,order:v.order,a:v.a||{},shards:v.shards||0};S.players=m;S.loaded=true;render()},
+  S.api.subPlayers(list=>{const m={};for(const v of list)m[v.id]={id:v.id,name:v.name||v.id,order:v.order,a:v.a||{},shards:v.shards||0};S.players=m;S.loaded=true;render();runImports()},
     err=>{S.loaded=true;if(err&&err.code==='permission-denied')S.api=null;render()});
-  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total'};render()});
+  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total',applied:(v&&v.applied)||[]};S.configLoaded=true;render();runImports()});
   S.api.subTrades(list=>{S.trades=list;render()});
 }
 const teamId=()=>{const h=location.hash.slice(1);return /^[A-Za-z0-9_-]{20,64}$/.test(h)?h:null};
