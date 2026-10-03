@@ -79,6 +79,17 @@ td.g{color:var(--gold)} td.p{color:var(--violet)} td.b{color:var(--blue)}
 .album .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px}
 .album .hd span{font:600 .95rem var(--label);letter-spacing:.03em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .album .hd small.en{display:block;font:500 .72rem var(--body);color:var(--faint);letter-spacing:0;overflow:hidden;text-overflow:ellipsis}
+.mx{width:auto}
+.mx th,.mx td{padding:5px 6px;text-align:center}
+.mx td:first-child,.mx th:first-child{text-align:left}
+.mx th.g,.cmp th.g{color:var(--gold)} .mx th.p,.cmp th.p{color:var(--violet)} .mx th.b,.cmp th.b{color:var(--blue)}
+.mx th.grp{border-bottom:2px solid currentColor}
+.c{font:600 .85rem var(--label);font-variant-numeric:tabular-nums;display:inline-block;min-width:1.6em;text-align:center;border-radius:4px}
+td.c{display:table-cell}
+.c.own{color:var(--good)} .c.tr{color:var(--good);background:var(--surface2)} .c.sh{color:var(--gold)} .c.near{color:var(--fg)} .c.far{color:var(--faint)}
+.cmp tr.on td{background:var(--surface2)}
+.cmp td b{color:var(--good)}
+.legend .c{padding:0 4px}
 .dayhd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:22px;padding-bottom:6px;border-bottom:2px solid var(--line)}
 .dayhd span{font:600 1.05rem var(--display)}
 .dayhd.now span{color:var(--gold)}
@@ -119,6 +130,7 @@ details{margin-top:14px} summary{cursor:pointer;color:var(--muted)}
   <div id="app">
     <nav class="tabs" role="tablist">
       <button role="tab" data-tab="plan"></button>
+      <button role="tab" data-tab="ishod"></button>
       <button role="tab" data-tab="stanje"></button>
       <button role="tab" data-tab="rupe"></button>
       <button role="tab" data-tab="istorija"></button>
@@ -127,6 +139,7 @@ details{margin-top:14px} summary{cursor:pointer;color:var(--muted)}
     <section id="tab-stanje" hidden></section>
     <section id="tab-rupe" hidden></section>
     <section id="tab-istorija" hidden></section>
+    <section id="tab-ishod" hidden></section>
   </div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -181,6 +194,9 @@ es:{g1:"Noche de aurora nevada",g2:"Pacto del destino",g3:"Resplandor del océan
 fr:{g1:"Nuit d'aurore enneigée",g2:"Pacte du destin",g3:"Lueur de l'océan fleuri",g4:"Voyage romantique",g5:"Rituel au clair de lune",g6:"Cerf dans les bois",p1:"Caravane des moissons",p2:"Meute de loups des neiges",p3:"Rivage murmurant",p4:"Gala du feu de joie",p5:"Temps de fête",p6:"Banquet pastoral",b1:"Expédition au trésor",b2:"Avantage du héros",b3:"Trésor fantôme",b4:"Lumière d'étoiles sur la neige"}};
 for(const l in EXTRA)Object.assign(I18N[l],EXTRA[l]);
 for(const l in EXTRA2)Object.assign(I18N[l],EXTRA2[l]);
+const EXTRA3={"en": {"tabOut": "Outcome", "strategy": "Strategy", "st_focus": "Max albums", "st_balanced": "Balanced", "st_fair": "Fair share", "stDesc_focus": "Puts pieces where they finish albums. Albums the team can't complete are skipped, so more albums get done in total.", "stDesc_balanced": "Steady progress for everyone. Albums close to complete still come first.", "stDesc_fair": "Helps the players who are furthest behind first, so everyone ends up at a similar level.", "outNote": "Runs every planned trade until no useful trade is left, assuming nobody gets new pieces, then uses each player's shards. Each trade swaps one card for one card of the same color, so trades only turn duplicates into missing pieces.", "calculating": "Calculating…", "noDataOut": "Enter album data first. The outcome is only as good as the data.", "allGold": "All gold", "allAlb": "All 16", "outMatrix": "Result per album: {s}", "lgOwn": "already complete", "lgTrade": "completed by trades", "lgShard": "completed with shards", "lgMissing": "pieces still missing", "stillMissing": "Still missing at the end", "whyNote": "Nobody has a spare: no one on the team has an extra copy, so it has to come from other players or packs. No duplicates to swap: a teammate has a spare, but this player has no duplicates of that color left to give.", "noSpare": "Nobody has a spare", "noDupes": "No duplicates to swap", "allDone": "Everyone completes everything."}, "de": {"tabOut": "Ergebnis", "strategy": "Strategie", "st_focus": "Max. Alben", "st_balanced": "Ausgewogen", "st_fair": "Gerecht", "stDesc_focus": "Teile gehen dorthin, wo sie Alben fertigstellen. Alben, die das Team nicht schaffen kann, werden übersprungen, so werden insgesamt mehr Alben fertig.", "stDesc_balanced": "Gleichmäßiger Fortschritt für alle. Fast fertige Alben haben trotzdem Vorrang.", "stDesc_fair": "Hilft zuerst den Spielern, die am weitesten zurückliegen, damit alle am Ende ähnlich weit sind.", "outNote": "Spielt alle geplanten Tausche durch, bis kein sinnvoller Tausch mehr übrig ist, ohne neue Teile, und setzt dann die Splitter jedes Spielers ein. Jeder Tausch ist eine Karte gegen eine Karte derselben Farbe, Tausche machen also nur aus Duplikaten fehlende Teile.", "calculating": "Wird berechnet…", "noDataOut": "Trage zuerst die Alben ein. Das Ergebnis ist nur so gut wie die Daten.", "allGold": "Alle Gold", "allAlb": "Alle 16", "outMatrix": "Ergebnis pro Album: {s}", "lgOwn": "schon komplett", "lgTrade": "durch Tausch komplett", "lgShard": "mit Splittern komplett", "lgMissing": "Teile fehlen noch", "stillMissing": "Am Ende noch fehlend", "whyNote": "Niemand hat Ersatz: kein Teammitglied hat eine zusätzliche Kopie, das Teil muss von anderen Spielern oder aus Paketen kommen. Keine Duplikate zum Tauschen: jemand im Team hat Ersatz, aber dieser Spieler hat keine Duplikate dieser Farbe mehr.", "noSpare": "Niemand hat Ersatz", "noDupes": "Keine Duplikate", "allDone": "Alle schaffen alles."}, "tr": {"tabOut": "Sonuç", "strategy": "Strateji", "st_focus": "En çok albüm", "st_balanced": "Dengeli", "st_fair": "Adil", "stDesc_focus": "Parçaları albüm tamamlayacakları yere verir. Takımın bitiremeyeceği albümler atlanır, böylece toplamda daha çok albüm tamamlanır.", "stDesc_balanced": "Herkes için düzenli ilerleme. Tamamlanmaya yakın albümler yine önce gelir.", "stDesc_fair": "Önce en geride kalan oyunculara yardım eder, böylece herkes benzer seviyede biter.", "outNote": "Kimsenin yeni parça almadığını varsayarak, faydalı takas kalmayana kadar tüm planlı takasları uygular, sonra her oyuncunun jokerlerini kullanır. Her takas aynı renkten bir karta karşılık bir karttır, yani takaslar sadece kopyaları eksik parçalara çevirir.", "calculating": "Hesaplanıyor…", "noDataOut": "Önce albüm verilerini gir. Sonuç ancak veriler kadar doğrudur.", "allGold": "Tüm altın", "allAlb": "16'sı da", "outMatrix": "Albüm bazında sonuç: {s}", "lgOwn": "zaten tamam", "lgTrade": "takasla tamamlandı", "lgShard": "jokerle tamamlandı", "lgMissing": "eksik parça", "stillMissing": "Sonunda hâlâ eksik", "whyNote": "Kimsede fazlası yok: takımda kimsenin ekstra kopyası yok, diğer oyunculardan veya paketlerden gelmesi gerekir. Takas için kopya yok: takımda birinde fazlası var, ama bu oyuncunun o renkte verecek kopyası kalmadı.", "noSpare": "Kimsede fazlası yok", "noDupes": "Verecek kopya yok", "allDone": "Herkes her şeyi tamamlıyor."}, "es": {"tabOut": "Resultado", "strategy": "Estrategia", "st_focus": "Máx. álbumes", "st_balanced": "Equilibrada", "st_fair": "Reparto justo", "stDesc_focus": "Lleva las piezas donde completan álbumes. Se saltan los álbumes que el equipo no puede terminar, así se completan más álbumes en total.", "stDesc_balanced": "Progreso constante para todos. Los álbumes casi completos siguen yendo primero.", "stDesc_fair": "Ayuda primero a los jugadores más atrasados, para que todos terminen a un nivel parecido.", "outNote": "Ejecuta todos los intercambios planificados hasta que no quede ninguno útil, suponiendo que nadie consigue piezas nuevas, y luego usa los fragmentos de cada jugador. Cada intercambio es una carta por otra del mismo color, así que solo convierte duplicados en piezas que faltan.", "calculating": "Calculando…", "noDataOut": "Introduce primero los álbumes. El resultado solo es tan bueno como los datos.", "allGold": "Todas doradas", "allAlb": "Los 16", "outMatrix": "Resultado por álbum: {s}", "lgOwn": "ya completo", "lgTrade": "completado con intercambios", "lgShard": "completado con fragmentos", "lgMissing": "piezas que faltan", "stillMissing": "Lo que sigue faltando al final", "whyNote": "Nadie tiene de sobra: nadie del equipo tiene una copia extra, tiene que venir de otros jugadores o de paquetes. Sin duplicados para cambiar: alguien del equipo tiene una de sobra, pero este jugador ya no tiene duplicados de ese color para dar.", "noSpare": "Nadie tiene de sobra", "noDupes": "Sin duplicados", "allDone": "Todos completan todo."}, "fr": {"tabOut": "Résultat", "strategy": "Stratégie", "st_focus": "Max. d'albums", "st_balanced": "Équilibrée", "st_fair": "Équitable", "stDesc_focus": "Envoie les pièces là où elles terminent des albums. Les albums que l'équipe ne peut pas finir sont ignorés, donc plus d'albums sont terminés au total.", "stDesc_balanced": "Progression régulière pour tous. Les albums presque complets passent quand même en premier.", "stDesc_fair": "Aide d'abord les joueurs les plus en retard, pour que tout le monde finisse à un niveau proche.", "outNote": "Joue tous les échanges prévus jusqu'à ce qu'il n'en reste aucun d'utile, en supposant que personne ne reçoit de nouvelles pièces, puis utilise les fragments de chaque joueur. Chaque échange est une carte contre une carte de la même couleur, donc les échanges ne font que transformer des doublons en pièces manquantes.", "calculating": "Calcul en cours…", "noDataOut": "Saisis d'abord les albums. Le résultat ne vaut que ce que valent les données.", "allGold": "Toutes dorées", "allAlb": "Les 16", "outMatrix": "Résultat par album : {s}", "lgOwn": "déjà complet", "lgTrade": "complété par échanges", "lgShard": "complété avec fragments", "lgMissing": "pièces manquantes", "stillMissing": "Ce qui manque encore à la fin", "whyNote": "Personne n'en a en trop : personne dans l'équipe n'a de copie en plus, elle doit venir d'autres joueurs ou de packs. Pas de doublons à échanger : un coéquipier en a en trop, mais ce joueur n'a plus de doublons de cette couleur à donner.", "noSpare": "Personne n'en a en trop", "noDupes": "Pas de doublons", "allDone": "Tout le monde complète tout."}};
+for(const l in EXTRA3)Object.assign(I18N[l],EXTRA3[l]);
+
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -246,7 +262,20 @@ function handleWriteErr(e){const c=e&&e.code;if(c==='invalid_argument'||c==='per
 function bump(pid,key,idx,delta){const s=str(S.players[pid],key);const v=Math.max(0,Math.min(9,Number(s[idx])+delta));if(v===Number(s[idx]))return;setStr(pid,key,s.slice(0,idx)+v+s.slice(idx+1))}
 
 /* ---------- planner ---------- */
-function planStep(C,cap,split){
+const STRATS=['focus','balanced','fair'];
+function gainFn(strat,C,ids,miss,shards){
+  if(strat==='focus'){
+    const spare={};for(const k of ALLKEYS){const sp=new Array(ALB[k].n).fill(0);for(const id of ids)C[id][k].forEach((v,i)=>{if(v>1)sp[i]+=v-1});spare[k]=sp}
+    const ok={};for(const id of ids)for(const k of ALLKEYS){if(!miss[id+k])continue;let un=0;C[id][k].forEach((v,i)=>{if(v===0&&spare[k][i]===0)un++});ok[id+k]=un<=(shards[id]||0)}
+    return (id,k,i)=>{if(C[id][k][i]!==0)return 0;const w=CBY[ALB[k].c].w;return ok[id+k]?w*(1+40/Math.pow(miss[id+k],1.5)):w*0.3};
+  }
+  if(strat==='fair'){
+    const prog={};for(const id of ids){let have=0,tot=0;for(const k of ALLKEYS){const w=CBY[ALB[k].c].w;tot+=w*ALB[k].n;have+=w*(ALB[k].n-miss[id+k])}prog[id]=tot?have/tot:0}
+    return (id,k,i)=>C[id][k][i]===0?CBY[ALB[k].c].w*(1+4/miss[id+k])*Math.pow(2-prog[id],3):0;
+  }
+  return (id,k,i)=>C[id][k][i]===0?CBY[ALB[k].c].w*(1+4/miss[id+k]):0;
+}
+function planStep(C,cap,split,strat,shards){
   const ids=Object.keys(C);
   const canReq=id=>split?cap[id].req>0:cap[id].tot>0, canAcc=id=>split?cap[id].acc>0:cap[id].tot>0;
   const out=[];
@@ -254,7 +283,7 @@ function planStep(C,cap,split){
     const miss={},dem={};
     for(const id of ids)for(const k of ALLKEYS)miss[id+k]=C[id][k].filter(v=>v===0).length;
     for(const k of ALLKEYS){dem[k]=new Array(ALB[k].n).fill(0);for(const id of ids)C[id][k].forEach((v,i)=>{if(v===0)dem[k][i]++})}
-    const gain=(id,k,i)=>C[id][k][i]===0?CBY[ALB[k].c].w*(1+4/miss[id+k]):0;
+    const gain=gainFn(strat,C,ids,miss,shards||{});
     let best=null;
     for(const A of ids){if(!canReq(A))continue;
       for(const B of ids){if(A===B||!canAcc(B))continue;
@@ -278,25 +307,43 @@ function planStep(C,cap,split){
 }
 /* Simulates the coming days with today's pieces: day 0 uses what is left of today's limit, then each day resets it. */
 let planCache={key:null,val:null};
+const strategy=()=>STRATS.includes(S.config.strategy)?S.config.strategy:'focus';
+const shardMap=()=>Object.fromEntries(playerList().map(p=>[p.id,shardsOf(p)]));
+const dataKey=()=>S.config.mode+'|'+today()+'|'+S.trades.filter(x=>x.day===today()).map(x=>x.req+x.acc).join(',')+'|'+JSON.stringify(snapshotCounts())+'|'+JSON.stringify(shardMap());
 function planDays(maxDays=30){
-  const C=snapshotCounts();
-  const key=S.config.mode+'|'+today()+'|'+S.trades.filter(x=>x.day===today()).map(x=>x.req+x.acc).join(',')+'|'+JSON.stringify(C);
+  const key=strategy()+'|'+dataKey();
   if(planCache.key===key)return planCache.val;
-  const val=planDaysRaw(C,maxDays);planCache={key,val};return val;
+  const val=planDaysRaw(snapshotCounts(),maxDays,strategy());planCache={key,val};return val;
 }
-function planDaysRaw(C,maxDays){const ids=Object.keys(C);const t=today();const split=S.config.mode==='split';
+function planDaysRaw(C,maxDays,strat){const ids=Object.keys(C);const t=today();const split=S.config.mode==='split';const sh=shardMap();
   const days=[];
   for(let d=0;d<maxDays;d++){
     const cap={};for(const id of ids)cap[id]=split?{req:1,acc:1}:{tot:2};
     if(d===0)for(const tr of S.trades)if(tr.day===t){
       if(cap[tr.req]){if(split)cap[tr.req].req--;else cap[tr.req].tot--}
       if(cap[tr.acc]){if(split)cap[tr.acc].acc--;else cap[tr.acc].tot--}}
-    const trades=planStep(C,cap,split);
+    const trades=planStep(C,cap,split,strat,sh);
     if(!trades.length){if(d===0)continue;break}
     days.push({d,trades});
   }
   return days;
 }
+/* Runs a strategy to the end (no new pieces), then spends each player's shards on what is still missing. */
+function simulate(strat){
+  const C=snapshotCounts();const before=JSON.parse(JSON.stringify(C));
+  const days=planDaysRaw(C,150,strat);
+  const after=JSON.parse(JSON.stringify(C));const sh=shardMap();const shardUsed={};
+  for(const id of Object.keys(C)){let s=sh[id]||0;
+    while(s>0){let best=null;
+      for(const k of ALLKEYS){const m=C[id][k].filter(v=>v===0).length;if(!m)continue;const sc=CBY[ALB[k].c].w*(1+40/Math.pow(m,1.5));
+        if(!best||sc>best.sc)best={k,i:C[id][k].indexOf(0),sc}}
+      if(!best)break;C[id][best.k][best.i]=1;(shardUsed[id]||(shardUsed[id]={}))[best.k]=((shardUsed[id]||{})[best.k]||0)+1;s--}}
+  const done=X=>{const r={g:0,p:0,b:0,allGold:0,allAlb:0};for(const id in X){let g=0,all=0;for(const k of ALLKEYS)if(!X[id][k].includes(0)){r[ALB[k].c]++;all++;if(ALB[k].c==='g')g++}if(g===6)r.allGold++;if(all===ALLKEYS.length)r.allAlb++}return r};
+  return {strat,before,after,final:C,shardUsed,days:days.length,trades:days.reduce((a,d)=>a+d.trades.length,0),sNow:done(before),sAfter:done(after),sFinal:done(C)};
+}
+let outCache={key:null,val:null};
+function outcomes(){const key=dataKey();if(outCache.key===key)return outCache.val;const val=Object.fromEntries(STRATS.map(st=>[st,simulate(st)]));outCache={key,val};return val}
+
 async function markDone(tr){
   if(S.ro||!S.api)return;
   const A=S.players[tr.req],B=S.players[tr.acc];if(!A||!B)return;
@@ -325,7 +372,7 @@ const canEdit=()=>!!S.api&&!S.ro;
 function nm(id){return esc(S.players[id]?.name||'?')}
 function renderChrome(){
   document.documentElement.lang=S.lang;$('#lang').value=S.lang;$('#sub').textContent=T('sub');
-  const tl={plan:'tabPlan',stanje:'tabCol',rupe:'tabGaps',istorija:'tabHist'};
+  const tl={plan:'tabPlan',ishod:'tabOut',stanje:'tabCol',rupe:'tabGaps',istorija:'tabHist'};
   document.querySelectorAll('.tabs button').forEach(b=>{b.textContent=T(tl[b.dataset.tab]);b.setAttribute('aria-selected',b.dataset.tab===S.tab)});
   const cl=$('#copylink');cl.hidden=!FIREBASE_CONFIG||!S.api;cl.textContent=T('copyLink');
   let h='';
@@ -346,7 +393,7 @@ function renderPlan(){
   const newPieces=all.reduce((s,x)=>s+(x.gReq?1:0)+(x.gAcc?1:0),0);
   const gold=all.reduce((s,x)=>s+(x.give.k[0]==='g'&&x.gAcc?1:0)+(x.get.k[0]==='g'&&x.gReq?1:0),0);
   const comps=all.reduce((s,x)=>s+(x.compA?1:0)+(x.compB?1:0),0);
-  let h=`<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="note">${esc(T('limit',{x:S.config.mode==='split'?T('limSplit'):T('lim2')}))}</span></div>
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="note">${esc(T('limit',{x:S.config.mode==='split'?T('limSplit'):T('lim2')}))} · ${esc(T('strategy'))}: <b>${esc(T('st_'+strategy()))}</b></span></div>
     <div class="stats"><div class="stat"><span class="lbl">${T('daysLbl')}</span><b>${days.length}</b></div>
     <div class="stat"><span class="lbl">${T('trades')}</span><b>${all.length}</b></div>
     <div class="stat"><span class="lbl">${T('newPieces')}</span><b>${newPieces}</b></div>
@@ -407,6 +454,46 @@ function renderStanje(){
   }
   el.innerHTML=h;const ni=document.getElementById('newname');if(ni&&prevName)ni.value=prevName;
 }
+function renderIshod(){
+  const el=$('#tab-ishod');
+  if(!S.loaded){el.innerHTML=`<div class="empty">${T('loading')}</div>`;return}
+  const ps=playerList();
+  if(!ps.length||!ps.some(p=>ALLKEYS.some(k=>str(p,k)!=='0'.repeat(ALB[k].n)))){el.innerHTML=`<div class="empty">${esc(T('noDataOut'))}</div>`;return}
+  if(!outCache.val||outCache.key!==dataKey()){el.innerHTML=`<div class="empty">${esc(T('calculating'))}</div>`;setTimeout(()=>{outcomes();if(S.tab==='ishod')renderIshod()},30);return}
+  const all=outcomes();const cur=strategy();const R=all[cur];
+  const fmt=(a,b)=>a===b?`${b}`:`${a} → <b>${b}</b>`;
+  let h=`<p class="note">${esc(T('outNote'))}</p>
+  <h3 class="lbl" style="margin-top:14px">${esc(T('strategy'))}</h3>
+  <div class="tablewrap"><table class="cmp"><thead><tr><th></th><th class="g">${T('g')}</th><th class="p">${T('p')}</th><th class="b">${T('b')}</th><th>${esc(T('allGold'))}</th><th>${esc(T('allAlb'))}</th><th>${esc(T('trades'))}</th><th>${esc(T('daysLbl'))}</th></tr></thead><tbody>`;
+  for(const st of STRATS){const r=all[st];
+    h+=`<tr class="${st===cur?'on':''}"><td><button class="btn${st===cur?' primary':''}" data-strat="${st}" ${canEdit()?'':'disabled'}>${esc(T('st_'+st))}</button></td>
+      <td>${fmt(r.sNow.g,r.sFinal.g)}</td><td>${fmt(r.sNow.p,r.sFinal.p)}</td><td>${fmt(r.sNow.b,r.sFinal.b)}</td><td>${fmt(r.sNow.allGold,r.sFinal.allGold)}</td><td>${fmt(r.sNow.allAlb,r.sFinal.allAlb)}</td><td>${r.trades}</td><td>${r.days}</td></tr>`}
+  h+=`</tbody></table></div><p class="note">${esc(T('stDesc_'+cur))}</p>`;
+  // matrix
+  h+=`<h3 class="lbl" style="margin-top:20px">${esc(T('outMatrix',{s:T('st_'+cur)}))}</h3><div class="tablewrap"><table class="mx"><thead><tr><th rowspan="2">${T('player')}</th>`;
+  for(const c of COLORS)h+=`<th colspan="${c.albums.length}" class="${c.k} grp">${T(c.k)}</th>`;
+  h+=`<th rowspan="2">✓</th></tr><tr>`;
+  for(const k of ALLKEYS)h+=`<th class="${ALB[k].c}" title="${esc(albumName(k))}">${k.slice(1)}</th>`;
+  h+='</tr></thead><tbody>';
+  for(const p of ps){const id=p.id;let n=0;h+=`<tr><td>${esc(p.name)}</td>`;
+    for(const k of ALLKEYS){const mA=R.after[id][k].filter(v=>v===0).length, mF=R.final[id][k].filter(v=>v===0).length, m0=R.before[id][k].filter(v=>v===0).length;
+      let cell,cls;
+      if(mF===0){n++;if(mA>0){cell='◆';cls='sh'}else if(m0>0){cell='✓';cls='tr'}else{cell='✓';cls='own'}}
+      else{cell=mF;cls=mF<=3?'near':'far'}
+      h+=`<td class="c ${cls}" title="${esc(albumName(k))}: ${m0} → ${mF}">${cell}</td>`}
+    h+=`<td><b>${n}</b>/${ALLKEYS.length}</td></tr>`}
+  h+=`</tbody></table></div><p class="note legend"><span class="c own">✓</span> ${esc(T('lgOwn'))} · <span class="c tr">✓</span> ${esc(T('lgTrade'))} · <span class="c sh">◆</span> ${esc(T('lgShard'))} · <span class="c near">3</span> ${esc(T('lgMissing'))}</p>`;
+  h+=`<p class="note">${COLORS.map(c=>c.albums.map((_,i)=>`<span class="pc ${c.k}">${i+1}</span> ${esc(albumName(c.k+(i+1)))}`).join(' · ')).join('<br>')}</p>`;
+  // what is still missing and why
+  h+=`<h3 class="lbl" style="margin-top:20px">${esc(T('stillMissing'))}</h3><p class="note">${esc(T('whyNote'))}</p>`;
+  let rows='';
+  for(const p of ps){const id=p.id;let none=0,cant=0;const byC={g:0,p:0,b:0};
+    for(const k of ALLKEYS)R.final[id][k].forEach((v,i)=>{if(v!==0)return;byC[ALB[k].c]++;if(ps.some(o=>o.id!==id&&R.final[o.id][k][i]>=2))cant++;else none++});
+    const tot=byC.g+byC.p+byC.b;if(!tot)continue;
+    rows+=`<tr><td>${esc(p.name)}</td><td class="g">${byC.g}</td><td class="p">${byC.p}</td><td class="b">${byC.b}</td><td>${none}</td><td>${cant}</td></tr>`}
+  h+=rows?`<div class="tablewrap"><table><thead><tr><th>${T('player')}</th><th class="g">${T('g')}</th><th class="p">${T('p')}</th><th class="b">${T('b')}</th><th>${esc(T('noSpare'))}</th><th>${esc(T('noDupes'))}</th></tr></thead><tbody>${rows}</tbody></table></div>`:`<div class="empty">${esc(T('allDone'))}</div>`;
+  el.innerHTML=h;
+}
 function renderRupe(){
   const el=$('#tab-rupe');const C=snapshotCounts();const ids=Object.keys(C);
   if(!ids.length){el.innerHTML=`<div class="empty">${esc(T('noData'))}</div>`;return}
@@ -429,8 +516,8 @@ function renderIstorija(){
 function render(){
   renderChrome();
   if(!$('#tab-plan'))return;
-  for(const t of ['plan','stanje','rupe','istorija'])$('#tab-'+t).hidden=t!==S.tab;
-  ({plan:renderPlan,stanje:renderStanje,rupe:renderRupe,istorija:renderIstorija})[S.tab]();
+  for(const t of ['plan','ishod','stanje','rupe','istorija'])$('#tab-'+t).hidden=t!==S.tab;
+  ({plan:renderPlan,ishod:renderIshod,stanje:renderStanje,rupe:renderRupe,istorija:renderIstorija})[S.tab]();
 }
 
 /* ---------- events ---------- */
@@ -444,6 +531,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.mode&&canEdit()){S.config.mode=b.dataset.mode;S.api.setConfig({mode:b.dataset.mode}).catch(handleWriteErr);render();return}
   if(b.dataset.shard&&canEdit()&&S.players[S.sel]){setShards(S.sel,shardsOf(S.players[S.sel])+Number(b.dataset.shard));render();return}
   if(b.dataset.use&&canEdit()){const [pid,k,i]=b.dataset.use.split('|');b.disabled=true;useShard(pid,k,+i);return}
+  if(b.dataset.strat&&canEdit()){S.config.strategy=b.dataset.strat;S.api.setConfig({strategy:b.dataset.strat}).catch(handleWriteErr);render();return}
   if(b.dataset.del){S.confirmDel=true;render();return}
   if(b.dataset.delno){S.confirmDel=false;render();return}
   if(b.dataset.delyes&&canEdit()){const p=S.players[S.sel];S.confirmDel=false;if(!p)return;
@@ -491,7 +579,7 @@ async function runImports(){
 function startSubs(){
   S.api.subPlayers(list=>{const m={};for(const v of list)m[v.id]={id:v.id,name:v.name||v.id,order:v.order,a:v.a||{},shards:v.shards||0};S.players=m;S.loaded=true;render();runImports()},
     err=>{S.loaded=true;if(err&&err.code==='permission-denied')S.api=null;render()});
-  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total',applied:(v&&v.applied)||[]};S.configLoaded=true;render();runImports()});
+  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total',strategy:(v&&v.strategy)||'focus',applied:(v&&v.applied)||[]};S.configLoaded=true;render();runImports()});
   S.api.subTrades(list=>{S.trades=list;render()});
 }
 const teamId=()=>{const h=location.hash.slice(1);return /^[A-Za-z0-9_-]{20,64}$/.test(h)?h:null};
