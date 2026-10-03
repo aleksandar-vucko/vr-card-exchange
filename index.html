@@ -393,7 +393,7 @@ function renderPlan(){
   const newPieces=all.reduce((s,x)=>s+(x.gReq?1:0)+(x.gAcc?1:0),0);
   const gold=all.reduce((s,x)=>s+(x.give.k[0]==='g'&&x.gAcc?1:0)+(x.get.k[0]==='g'&&x.gReq?1:0),0);
   const comps=all.reduce((s,x)=>s+(x.compA?1:0)+(x.compB?1:0),0);
-  let h=`<div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="note">${esc(T('limit',{x:S.config.mode==='split'?T('limSplit'):T('lim2')}))} · ${esc(T('strategy'))}: <b>${esc(T('st_'+strategy()))}</b></span></div>
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:8px"><label class="row"><span class="lbl">${esc(T('strategy'))}</span><select id="stratsel" ${canEdit()?'':'disabled'}>${STRATS.map(st=>`<option value="${st}" ${st===strategy()?'selected':''}>${esc(T('st_'+st))}</option>`).join('')}</select></label><span class="note">${esc(T('limit',{x:S.config.mode==='split'?T('limSplit'):T('lim2')}))}</span></div><p class="note" style="margin-top:0">${esc(T('stDesc_'+strategy()))}</p>
     <div class="stats"><div class="stat"><span class="lbl">${T('daysLbl')}</span><b>${days.length}</b></div>
     <div class="stat"><span class="lbl">${T('trades')}</span><b>${all.length}</b></div>
     <div class="stat"><span class="lbl">${T('newPieces')}</span><b>${newPieces}</b></div>
@@ -541,6 +541,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
+  if(e.target.id==='stratsel'&&canEdit()){S.config.strategy=e.target.value;S.api.setConfig({strategy:e.target.value}).catch(handleWriteErr);render();return}
   if(e.target.id==='lang'){S.lang=e.target.value;ls.set('lang',S.lang);if($('#createteam'))showWelcome();else render()}
 });
 document.addEventListener('submit',async e=>{
