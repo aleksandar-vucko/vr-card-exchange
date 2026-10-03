@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Viking Rise Trading</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600&display=swap">
+<style>
+/* Layout: one column tool, tab bar on top; grids mirror the in-game album. Dark-first like the game. */
+:root{
+  --bg:#14120f; --surface:#1d1a16; --surface2:#26221c; --line:#3a342b;
+  --fg:#ece6da; --muted:#a39a8a; --faint:#6e665a;
+  --gold:#e0b44c; --gold-bg:#3a2e12; --violet:#b48cf0; --violet-bg:#2c2140; --blue:#6fb0f0; --blue-bg:#152a40;
+  --good:#7fcf8a; --bad:#ef7a6a;
+  --display:"Cinzel",Georgia,serif; --body:"Barlow",system-ui,sans-serif; --label:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f6f2ea; --surface:#fffdf8; --surface2:#efe8db; --line:#ddd2bf;
+  --fg:#231e17; --muted:#6c6253; --faint:#a59a87;
+  --gold:#9a6d06; --gold-bg:#f6e6bb; --violet:#6b3fb8; --violet-bg:#ece2fb; --blue:#1e64ad; --blue-bg:#dceafa;
+  --good:#2f7d3b; --bad:#b33a2b; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f6f2ea; --surface:#fffdf8; --surface2:#efe8db; --line:#ddd2bf;
+  --fg:#231e17; --muted:#6c6253; --faint:#a59a87;
+  --gold:#9a6d06; --gold-bg:#f6e6bb; --violet:#6b3fb8; --violet-bg:#ece2fb; --blue:#1e64ad; --blue-bg:#dceafa;
+  --good:#2f7d3b; --bad:#b33a2b; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--body);margin:0}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px;padding-block:18px 60px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.top>div:first-child{min-width:0;flex:1 1 260px}
+h1{font:700 1.45rem/1.15 var(--display);letter-spacing:.02em;margin:0;color:var(--gold);text-wrap:balance}
+.sub{color:var(--muted);font-size:.9rem;margin-top:4px}
+.lbl{font:600 .78rem var(--label);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:16px -16px 14px;padding:8px 16px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{font:600 .95rem var(--label);letter-spacing:.04em;background:none;border:0;color:var(--muted);padding:7px 12px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--surface2);color:var(--fg)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.banner{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.9rem;margin-top:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+select,input[type=text]{font:inherit;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;max-width:100%}
+.btn{font:600 .9rem var(--label);letter-spacing:.04em;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1408}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{background:var(--surface);border:0;color:var(--muted);padding:7px 12px;font:600 .9rem var(--label);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface2);color:var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:5px 11px;font:500 .9rem var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--gold);background:var(--gold-bg)}
+.stats{display:flex;flex-wrap:wrap;gap:18px;margin:4px 0 14px}
+.stat b{display:block;font:600 1.5rem var(--label);font-variant-numeric:tabular-nums}
+.trade{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.trade.mine .n{background:var(--gold);color:#1a1408}
+.n{width:26px;height:26px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;font:600 .85rem var(--label);font-variant-numeric:tabular-nums}
+.who{font-weight:600}
+.det{color:var(--muted);font-size:.9rem;margin-top:2px;min-width:0}
+.pc{display:inline-block;font:600 .85rem var(--label);letter-spacing:.03em;padding:1px 7px;border-radius:5px;margin:1px 0}
+.pc.g{background:var(--gold-bg);color:var(--gold)} .pc.p{background:var(--violet-bg);color:var(--violet)} .pc.b{background:var(--blue-bg);color:var(--blue)}
+.tag{font:600 .75rem var(--label);letter-spacing:.06em;text-transform:uppercase;color:var(--good)}
+.tag.zero{color:var(--faint)}
+.empty{color:var(--muted);padding:18px 0}
+.tablewrap{overflow-x:auto;margin-bottom:18px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.92rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 .78rem var(--label);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td.g{color:var(--gold)} td.p{color:var(--violet)} td.b{color:var(--blue)}
+.bar{height:4px;background:var(--surface2);border-radius:2px;margin-top:3px;min-width:60px}
+.bar i{display:block;height:100%;border-radius:2px;background:currentColor}
+.colorsec{margin-top:20px}
+.colorsec h3{font:600 1.05rem var(--display);margin:0 0 8px}
+.colorsec.g h3{color:var(--gold)} .colorsec.p h3{color:var(--violet)} .colorsec.b h3{color:var(--blue)}
+.albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.album{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.album .hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px}
+.album .hd span{font:600 .95rem var(--label);letter-spacing:.03em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.album .hd em{font-style:normal;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.album.done{border-color:var(--good)}
+.grid{display:grid;gap:3px}
+.cell{position:relative;aspect-ratio:1;border:1px dashed var(--line);border-radius:5px;background:transparent;color:var(--faint);font:500 .72rem var(--label);cursor:pointer;padding:0;display:grid;place-items:center;max-width:100%}
+.cell.have{border-style:solid}
+.g .cell.have{background:var(--gold-bg);border-color:var(--gold);color:var(--gold)}
+.p .cell.have{background:var(--violet-bg);border-color:var(--violet);color:var(--violet)}
+.b .cell.have{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.cell .d{position:absolute;right:-3px;top:-5px;background:var(--fg);color:var(--bg);border-radius:8px;font:600 .66rem var(--label);padding:0 4px;line-height:14px}
+.cell:disabled{cursor:default}
+.hole{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);align-items:baseline;flex-wrap:wrap}
+.hole .m{color:var(--muted);font-size:.9rem;min-width:0}
+details{margin-top:14px} summary{cursor:pointer;color:var(--muted)}
+.note{color:var(--muted);font-size:.88rem}
+.welcome{max-width:460px;padding-block:30px;display:grid;gap:12px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.9rem;z-index:9;max-width:calc(100% - 32px);overflow-wrap:anywhere}
+@media (prefers-reduced-motion:no-preference){.cell{transition:background .12s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>Viking Rise Trading</h1><div class="sub" id="sub"></div></div>
+    <div class="row">
+      <button class="btn" id="copylink" hidden></button>
+      <select id="lang" aria-label="Language">
+        <option value="en">English</option><option value="de">Deutsch</option><option value="tr">Türkçe</option><option value="es">Español</option><option value="fr">Français</option>
+      </select>
+    </div>
+  </div>
+  <div id="banner"></div>
+  <div id="app">
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="plan"></button>
+      <button role="tab" data-tab="stanje"></button>
+      <button role="tab" data-tab="rupe"></button>
+      <button role="tab" data-tab="istorija"></button>
+    </nav>
+    <section id="tab-plan"></section>
+    <section id="tab-stanje" hidden></section>
+    <section id="tab-rupe" hidden></section>
+    <section id="tab-istorija" hidden></section>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* ===== Firebase settings =====
+   Leave null to use the Claude artifact database.
+   For your own site, paste the config object from the Firebase console here. */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCArzUxgx39_l-wzMqbo9ZAD3aNmDEWhhY",
+  authDomain: "viking-rise-card-exchange.firebaseapp.com",
+  projectId: "viking-rise-card-exchange",
+  storageBucket: "viking-rise-card-exchange.firebasestorage.app",
+  messagingSenderId: "436879286392",
+  appId: "1:436879286392:web:b3205c2eb31594b3214d8d"
+};
+const DEFAULT_PLAYERS = ["Aurora","Maco","skstr","Grey","Nerf","Kızagan","Ronin","Lacerot","Lethal","Sérea","Neri"];
+
+const COLORS=[
+  {k:'g',w:5,albums:[["Snowy Aurora Night",28],["Covenant of Fate",28],["Floral Ocean Glow",28],["Romantic Voyage",28],["Moonlight Ritual",28],["Deer in the Woods",28]]},
+  {k:'p',w:2,albums:[["Harvest Caravan",24],["Snow Wolf Pack",24],["Whispering Shore",24],["Bonfire Gala",24],["Time of Celebration",15],["Pastoral Banquet",15]]},
+  {k:'b',w:1,albums:[["Treasure Expedition",14],["Hero's Advantage",14],["Phantom Treasure",14],["Starlight on Snow",14]]}];
+const ALB={};const COLS={28:7,24:6,15:5,14:7};
+for(const c of COLORS)c.albums.forEach(([name,n],i)=>{ALB[c.k+(i+1)]={name,n,cols:COLS[n]||7,c:c.k}});
+const CBY=Object.fromEntries(COLORS.map(c=>[c.k,c]));
+const KEYS=c=>c.albums.map((_,i)=>c.k+(i+1));
+const ALLKEYS=COLORS.flatMap(KEYS);
+
+const I18N={
+en:{sub:"Puzzle tracker and daily trade plan for the team. Gold pieces come first.",tabPlan:"Today's plan",tabCol:"Collections",tabGaps:"Gaps & extras",tabHist:"History",g:"Gold",p:"Purple",b:"Blue",noEdit:"You do not have edit access. This page is view only.",saveFail:"Saving failed. Please try again.",saved:"Saved",noDb:"Shared data isn't available. Check that you opened the full link.",readOnly:"View only. Changes are made by the page owner or invited editors.",iAm:"I am",loading:"Loading…",noPlayers:"No players yet. Add them on the Collections tab and the trade plan will appear here.",limit:"Limit: {x} per player per day",lim2:"2 trades",limSplit:"1 offer + 1 accept",trades:"Trades",newPieces:"New pieces",withGold:"With gold",completions:"Completions",doneToday:"Done today",noTrades:"No useful trades within the team right now. See the Gaps & extras tab for trading with other players.",completes:"completes album",newPiece:"new piece",duplicate:"duplicate",offers:"{a} offers {x} and asks for {y}",accepted:"Accepted by {b}",done:"Done",howTitle:"How the plan works",howText:"The plan is recalculated after every change. A missing piece someone receives is worth more the rarer its color (gold 5, purple 2, blue 1) and the closer its album is to complete. Trades where both players get a piece they're missing are picked first, then trades where only one player gains and the other takes a duplicate they can trade on later. When you press Done, the pieces move between the two players automatically.",limitRule:"Limit rule",any2:"2 of any kind",split:"1 offer + 1 accept",player:"Player",add:"+ Add",remove:"− Remove",tapHint:"Tap a piece: the first tap marks it as owned, each further tap adds a duplicate.",dupShort:"dup.",cellDup:"{n} duplicates",cellMissing:"missing",newName:"New player name",addPlayer:"Add player",noData:"No data yet.",missingList:"missing: {list}",gapsInfo:"Gaps are pieces someone is missing that nobody on the team has as a duplicate. Ask other players for these in the exchange, offering extras: duplicates nobody on the team needs.",gaps:"Gaps",noGaps:"No gaps.",extras:"Extras to trade with others",noExtras:"No extras.",noHist:"No trades yet. When you press Done in the plan, the trade is logged here.",gave:"{a} gave {x} to {b} and got {y}",exists:"That player already exists",added:"Added {n}",removePlayer:"Remove player",confirmRemove:"Remove {n}? Their pieces will be deleted.",cancel:"Cancel",removed:"Removed {n}",welcome:"This page needs a team link.",createTeam:"Create team link",welcomeNote:"Creates a private link for your team. Anyone with the link can view and edit, so share it only in your team chat.",copyLink:"Copy team link",copied:"Link copied"},
+de:{sub:"Puzzle-Übersicht und täglicher Tauschplan für das Team. Goldteile haben Vorrang.",tabPlan:"Plan für heute",tabCol:"Sammlungen",tabGaps:"Lücken & Überschuss",tabHist:"Verlauf",g:"Gold",p:"Lila",b:"Blau",noEdit:"Du hast keine Bearbeitungsrechte. Diese Seite ist nur zum Ansehen.",saveFail:"Speichern fehlgeschlagen. Bitte erneut versuchen.",saved:"Gespeichert",noDb:"Geteilte Daten sind nicht verfügbar. Prüfe, ob du den vollständigen Link geöffnet hast.",readOnly:"Nur Ansicht. Änderungen nehmen der Besitzer der Seite oder eingeladene Bearbeiter vor.",iAm:"Ich bin",loading:"Wird geladen…",noPlayers:"Noch keine Spieler. Füge sie im Tab Sammlungen hinzu, dann erscheint hier der Tauschplan.",limit:"Limit: {x} pro Spieler und Tag",lim2:"2 Tausche",limSplit:"1 Angebot + 1 Annahme",trades:"Tausche",newPieces:"Neue Teile",withGold:"Mit Gold",completions:"Komplettiert",doneToday:"Heute erledigt",noTrades:"Im Moment gibt es keine sinnvollen Tausche im Team. Im Tab Lücken & Überschuss findest du Teile zum Tauschen mit anderen Spielern.",completes:"komplettiert Album",newPiece:"neues Teil",duplicate:"Duplikat",offers:"{a} bietet {x} und fragt nach {y}",accepted:"Annahme durch {b}",done:"Erledigt",howTitle:"So entsteht der Plan",howText:"Der Plan wird nach jeder Änderung neu berechnet. Ein fehlendes Teil, das jemand bekommt, zählt umso mehr, je seltener seine Farbe ist (Gold 5, Lila 2, Blau 1) und je näher das Album an der Vervollständigung ist. Zuerst werden Tausche gewählt, bei denen beide ein fehlendes Teil bekommen, danach solche, bei denen nur einer gewinnt und der andere ein Duplikat nimmt, das er später weitertauschen kann. Wenn du auf Erledigt tippst, werden die Teile automatisch zwischen den beiden Spielern verschoben.",limitRule:"Limit-Regel",any2:"2 beliebige",split:"1 Angebot + 1 Annahme",player:"Spieler",add:"+ Hinzufügen",remove:"− Entfernen",tapHint:"Tippe auf ein Teil: Der erste Tipp markiert es als vorhanden, jeder weitere fügt ein Duplikat hinzu.",dupShort:"Dupl.",cellDup:"{n} Duplikate",cellMissing:"fehlt",newName:"Name des neuen Spielers",addPlayer:"Spieler hinzufügen",noData:"Noch keine Daten.",missingList:"fehlt: {list}",gapsInfo:"Lücken sind Teile, die jemandem fehlen und die niemand im Team als Duplikat hat. Frag andere Spieler im Tauschmarkt danach und biete Überschuss an: Duplikate, die im Team niemand braucht.",gaps:"Lücken",noGaps:"Keine Lücken.",extras:"Überschuss zum Tauschen mit anderen",noExtras:"Kein Überschuss.",noHist:"Noch keine Tausche. Wenn du im Plan auf Erledigt tippst, wird der Tausch hier eingetragen.",gave:"{a} gab {x} an {b} und bekam {y}",exists:"Diesen Spieler gibt es schon",added:"{n} hinzugefügt",removePlayer:"Spieler entfernen",confirmRemove:"{n} entfernen? Seine Teile werden gelöscht.",cancel:"Abbrechen",removed:"{n} entfernt",welcome:"Für diese Seite brauchst du einen Team-Link.",createTeam:"Team-Link erstellen",welcomeNote:"Erstellt einen privaten Link für euer Team. Jeder mit dem Link kann ansehen und bearbeiten, teile ihn also nur im Team-Chat.",copyLink:"Team-Link kopieren",copied:"Link kopiert"},
+tr:{sub:"Takım için yapboz takibi ve günlük takas planı. Altın parçalar önceliklidir.",tabPlan:"Bugünün planı",tabCol:"Koleksiyonlar",tabGaps:"Eksikler ve fazlalar",tabHist:"Geçmiş",g:"Altın",p:"Mor",b:"Mavi",noEdit:"Düzenleme yetkin yok. Bu sayfa yalnızca görüntüleme içindir.",saveFail:"Kaydedilemedi. Lütfen tekrar dene.",saved:"Kaydedildi",noDb:"Paylaşılan veriler kullanılamıyor. Bağlantının tamamını açtığından emin ol.",readOnly:"Yalnızca görüntüleme. Değişiklikleri sayfa sahibi veya davet edilen editörler yapar.",iAm:"Ben",loading:"Yükleniyor…",noPlayers:"Henüz oyuncu yok. Koleksiyonlar sekmesinden ekle, takas planı burada görünecek.",limit:"Limit: oyuncu başına günde {x}",lim2:"2 takas",limSplit:"1 teklif + 1 kabul",trades:"Takaslar",newPieces:"Yeni parçalar",withGold:"Altınlı",completions:"Tamamlanan",doneToday:"Bugün yapılan",noTrades:"Şu anda takım içinde faydalı takas yok. Diğer oyuncularla takas için Eksikler ve fazlalar sekmesine bak.",completes:"albümü tamamlar",newPiece:"yeni parça",duplicate:"kopya",offers:"{a}, {x} teklif ediyor ve {y} istiyor",accepted:"Kabul eden: {b}",done:"Yapıldı",howTitle:"Plan nasıl hazırlanır",howText:"Plan her değişiklikten sonra yeniden hesaplanır. Birinin eksik bir parçayı alması, rengi ne kadar nadirse (altın 5, mor 2, mavi 1) ve albüm tamamlanmaya ne kadar yakınsa o kadar değerlidir. Önce iki oyuncunun da eksik bir parça aldığı takaslar seçilir, sonra yalnızca birinin kazandığı ve diğerinin daha sonra takas edebileceği bir kopya aldığı takaslar. Yapıldı'ya bastığında parçalar iki oyuncu arasında otomatik olarak aktarılır.",limitRule:"Limit kuralı",any2:"Herhangi 2",split:"1 teklif + 1 kabul",player:"Oyuncu",add:"+ Ekle",remove:"− Çıkar",tapHint:"Bir parçaya dokun: ilk dokunuş sahip olduğunu işaretler, sonraki her dokunuş bir kopya ekler.",dupShort:"kopya",cellDup:"{n} kopya",cellMissing:"eksik",newName:"Yeni oyuncunun adı",addPlayer:"Oyuncu ekle",noData:"Henüz veri yok.",missingList:"eksik: {list}",gapsInfo:"Eksikler, birinde olmayan ve takımda kimsenin kopyası bulunmayan parçalardır. Bunları takas pazarında diğer oyunculardan iste, karşılığında fazlaları teklif et: takımda kimsenin ihtiyaç duymadığı kopyalar.",gaps:"Eksikler",noGaps:"Eksik yok.",extras:"Diğerleriyle takas için fazlalar",noExtras:"Fazla yok.",noHist:"Henüz takas yok. Planda Yapıldı'ya bastığında takas buraya kaydedilir.",gave:"{a}, {b} oyuncusuna {x} verdi ve {y} aldı",exists:"Bu oyuncu zaten var",added:"{n} eklendi",removePlayer:"Oyuncuyu çıkar",confirmRemove:"{n} çıkarılsın mı? Parçaları silinecek.",cancel:"Vazgeç",removed:"{n} çıkarıldı",welcome:"Bu sayfa için bir takım bağlantısı gerekiyor.",createTeam:"Takım bağlantısı oluştur",welcomeNote:"Takımınız için özel bir bağlantı oluşturur. Bağlantıya sahip herkes görüntüleyip düzenleyebilir, bu yüzden sadece takım sohbetinde paylaş.",copyLink:"Takım bağlantısını kopyala",copied:"Bağlantı kopyalandı"},
+es:{sub:"Registro de puzles y plan diario de intercambios para el equipo. Las piezas doradas van primero.",tabPlan:"Plan de hoy",tabCol:"Colecciones",tabGaps:"Faltantes y sobrantes",tabHist:"Historial",g:"Doradas",p:"Moradas",b:"Azules",noEdit:"No tienes permiso para editar. Esta página es solo de lectura.",saveFail:"No se pudo guardar. Inténtalo de nuevo.",saved:"Guardado",noDb:"Los datos compartidos no están disponibles. Comprueba que abriste el enlace completo.",readOnly:"Solo lectura. Los cambios los hace el dueño de la página o los editores invitados.",iAm:"Soy",loading:"Cargando…",noPlayers:"Todavía no hay jugadores. Añádelos en la pestaña Colecciones y aquí aparecerá el plan.",limit:"Límite: {x} por jugador al día",lim2:"2 intercambios",limSplit:"1 oferta + 1 aceptación",trades:"Intercambios",newPieces:"Piezas nuevas",withGold:"Con doradas",completions:"Completados",doneToday:"Hechos hoy",noTrades:"Ahora mismo no hay intercambios útiles dentro del equipo. Mira la pestaña Faltantes y sobrantes para intercambiar con otros jugadores.",completes:"completa álbum",newPiece:"pieza nueva",duplicate:"duplicado",offers:"{a} ofrece {x} y pide {y}",accepted:"Acepta {b}",done:"Hecho",howTitle:"Cómo se hace el plan",howText:"El plan se recalcula después de cada cambio. Una pieza que alguien recibe y le faltaba vale más cuanto más raro es su color (dorada 5, morada 2, azul 1) y cuanto más cerca está el álbum de completarse. Primero se eligen los intercambios en los que ambos reciben una pieza que les falta, después aquellos en los que gana solo uno y el otro se queda un duplicado que podrá intercambiar más tarde. Al pulsar Hecho, las piezas pasan automáticamente de un jugador a otro.",limitRule:"Regla de límite",any2:"2 cualesquiera",split:"1 oferta + 1 aceptación",player:"Jugador",add:"+ Añadir",remove:"− Quitar",tapHint:"Toca una pieza: el primer toque la marca como tuya y cada toque siguiente añade un duplicado.",dupShort:"dupl.",cellDup:"{n} duplicados",cellMissing:"falta",newName:"Nombre del nuevo jugador",addPlayer:"Añadir jugador",noData:"Todavía no hay datos.",missingList:"falta a: {list}",gapsInfo:"Los faltantes son piezas que le faltan a alguien y que nadie del equipo tiene duplicadas. Pídelas a otros jugadores en el intercambio y ofrece sobrantes: duplicados que nadie del equipo necesita.",gaps:"Faltantes",noGaps:"No hay faltantes.",extras:"Sobrantes para intercambiar con otros",noExtras:"No hay sobrantes.",noHist:"Todavía no hay intercambios. Cuando pulses Hecho en el plan, el intercambio se registrará aquí.",gave:"{a} dio {x} a {b} y recibió {y}",exists:"Ese jugador ya existe",added:"{n} añadido",removePlayer:"Quitar jugador",confirmRemove:"¿Quitar a {n}? Se borrarán sus piezas.",cancel:"Cancelar",removed:"{n} quitado",welcome:"Esta página necesita un enlace de equipo.",createTeam:"Crear enlace de equipo",welcomeNote:"Crea un enlace privado para tu equipo. Cualquiera con el enlace puede ver y editar, así que compártelo solo en el chat del equipo.",copyLink:"Copiar enlace del equipo",copied:"Enlace copiado"},
+fr:{sub:"Suivi des puzzles et plan d'échanges quotidien pour l'équipe. Les pièces dorées passent en premier.",tabPlan:"Plan du jour",tabCol:"Collections",tabGaps:"Manques et surplus",tabHist:"Historique",g:"Dorées",p:"Violettes",b:"Bleues",noEdit:"Tu n'as pas les droits de modification. Cette page est en lecture seule.",saveFail:"L'enregistrement a échoué. Réessaie.",saved:"Enregistré",noDb:"Les données partagées ne sont pas disponibles. Vérifie que tu as ouvert le lien complet.",readOnly:"Lecture seule. Les modifications sont faites par le propriétaire de la page ou les éditeurs invités.",iAm:"Je suis",loading:"Chargement…",noPlayers:"Aucun joueur pour l'instant. Ajoute-les dans l'onglet Collections et le plan d'échanges apparaîtra ici.",limit:"Limite : {x} par joueur et par jour",lim2:"2 échanges",limSplit:"1 offre + 1 acceptation",trades:"Échanges",newPieces:"Nouvelles pièces",withGold:"Avec dorées",completions:"Complétés",doneToday:"Faits aujourd'hui",noTrades:"Aucun échange utile dans l'équipe pour le moment. Consulte l'onglet Manques et surplus pour échanger avec d'autres joueurs.",completes:"complète l'album",newPiece:"nouvelle pièce",duplicate:"doublon",offers:"{a} propose {x} et demande {y}",accepted:"Accepté par {b}",done:"Fait",howTitle:"Comment le plan est calculé",howText:"Le plan est recalculé après chaque modification. Une pièce manquante reçue vaut d'autant plus que sa couleur est rare (dorée 5, violette 2, bleue 1) et que l'album est proche d'être complet. On choisit d'abord les échanges où les deux joueurs reçoivent une pièce qui leur manque, puis ceux où un seul gagne et l'autre prend un doublon qu'il pourra échanger plus tard. Quand tu appuies sur Fait, les pièces passent automatiquement d'un joueur à l'autre.",limitRule:"Règle de limite",any2:"2 au choix",split:"1 offre + 1 acceptation",player:"Joueur",add:"+ Ajouter",remove:"− Retirer",tapHint:"Touche une pièce : le premier appui la marque comme possédée, chaque appui suivant ajoute un doublon.",dupShort:"doubl.",cellDup:"{n} doublons",cellMissing:"manquante",newName:"Nom du nouveau joueur",addPlayer:"Ajouter un joueur",noData:"Pas encore de données.",missingList:"manque à : {list}",gapsInfo:"Les manques sont des pièces qui manquent à quelqu'un et que personne dans l'équipe n'a en doublon. Demande-les aux autres joueurs dans l'échange en proposant des surplus : des doublons dont personne dans l'équipe n'a besoin.",gaps:"Manques",noGaps:"Aucun manque.",extras:"Surplus à échanger avec d'autres",noExtras:"Aucun surplus.",noHist:"Aucun échange pour l'instant. Quand tu appuies sur Fait dans le plan, l'échange est enregistré ici.",gave:"{a} a donné {x} à {b} et a reçu {y}",exists:"Ce joueur existe déjà",added:"{n} ajouté",removePlayer:"Retirer le joueur",confirmRemove:"Retirer {n} ? Ses pièces seront supprimées.",cancel:"Annuler",removed:"{n} retiré",welcome:"Cette page a besoin d'un lien d'équipe.",createTeam:"Créer le lien d'équipe",welcomeNote:"Crée un lien privé pour ton équipe. Toute personne ayant le lien peut voir et modifier, alors partage-le uniquement dans le chat de l'équipe.",copyLink:"Copier le lien d'équipe",copied:"Lien copié"}};
+
+const EXTRA={
+en:{shards:"Shards",shardTitle:"Generic Shards",shardNote:"Shards replace any missing piece. They're suggested only for gaps: pieces nobody on the team can trade you. Gold first, then albums closest to complete.",use:"Use",used:"Shard used on {x}",noShardTips:"No shard suggestions right now."},
+de:{shards:"Splitter",shardTitle:"Universal-Splitter",shardNote:"Splitter ersetzen jedes fehlende Teil. Sie werden nur für Lücken vorgeschlagen: Teile, die dir niemand im Team tauschen kann. Zuerst Gold, dann Alben, die fast komplett sind.",use:"Einsetzen",used:"Splitter eingesetzt für {x}",noShardTips:"Im Moment keine Vorschläge für Splitter."},
+tr:{shards:"Joker",shardTitle:"Joker parçalar",shardNote:"Joker parçalar herhangi bir eksik parçanın yerini alabilir. Sadece eksikler için önerilir: takımda kimsenin sana takas edemeyeceği parçalar. Önce altın, sonra tamamlanmaya en yakın albümler.",use:"Kullan",used:"{x} için joker kullanıldı",noShardTips:"Şu anda joker önerisi yok."},
+es:{shards:"Fragmentos",shardTitle:"Fragmentos genéricos",shardNote:"Los fragmentos sustituyen cualquier pieza que falte. Solo se sugieren para faltantes: piezas que nadie del equipo te puede dar. Primero doradas, luego los álbumes más cerca de completarse.",use:"Usar",used:"Fragmento usado en {x}",noShardTips:"Ahora no hay sugerencias de fragmentos."},
+fr:{shards:"Fragments",shardTitle:"Fragments génériques",shardNote:"Les fragments remplacent n'importe quelle pièce manquante. Ils sont proposés seulement pour les manques : des pièces que personne dans l'équipe ne peut t'échanger. D'abord les dorées, puis les albums les plus proches d'être complets.",use:"Utiliser",used:"Fragment utilisé pour {x}",noShardTips:"Aucune suggestion de fragment pour le moment."}};
+for(const l in EXTRA)Object.assign(I18N[l],EXTRA[l]);
+
+const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+S.me=ls.get('me');S.tab=ls.get('tab')||'plan';
+S.lang=ls.get('lang')||((navigator.language||'en').slice(0,2));if(!I18N[S.lang])S.lang='en';
+const T=(k,v)=>{let s=(I18N[S.lang]||I18N.en)[k]??I18N.en[k]??k;if(v)for(const x in v)s=s.split('{'+x+'}').join(v[x]);return s};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600)}
+function pcHtml(key,idx){const a=ALB[key];return `<span class="pc ${a.c}">${esc(a.name)} #${idx+1}</span>`}
+const emptyAlbums=()=>Object.fromEntries(ALLKEYS.map(k=>[k,'0'.repeat(ALB[k].n)]));
+const slug=name=>name.toLowerCase().replace(/ı/g,'i').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||('p'+Date.now());
+
+/* ---------- storage adapters ---------- */
+function claudeAdapter(db){return{
+  subPlayers:(cb,err)=>db.collection('players').onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
+  subConfig:cb=>db.doc('config/main').onSnapshot(d=>cb(d.exists?d.data():{})),
+  subTrades:cb=>db.collection('trades').orderBy('at','desc').limit(500).onSnapshot(s=>cb(s.docs.map(d=>d.data()))),
+  updatePlayer:(pid,f,sh)=>{const d={};if(Object.keys(f).length)d.a=f;if(sh!=null)d.shards=sh;return db.doc('players/'+pid).update(d)},
+  setPlayer:(id,data)=>db.doc('players/'+id).set(data),
+  deletePlayer:id=>db.doc('players/'+id).delete(),
+  addTrade:data=>db.collection('trades').add(data),
+  setConfig:data=>db.doc('config/main').set({...S.config,...data})}}
+async function firebaseAdapter(cfg,team){
+  const V='10.12.2';
+  const app=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+  const fs=await import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+  const db=fs.getFirestore(app.initializeApp(cfg));
+  const col=n=>fs.collection(db,'teams',team,n), doc=(n,id)=>fs.doc(db,'teams',team,n,id);
+  return{
+    subPlayers:(cb,err)=>fs.onSnapshot(col('players'),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
+    subConfig:cb=>fs.onSnapshot(doc('meta','config'),d=>cb(d.exists()?d.data():{})),
+    subTrades:cb=>fs.onSnapshot(fs.query(col('trades'),fs.orderBy('at','desc'),fs.limit(500)),s=>cb(s.docs.map(d=>d.data()))),
+    updatePlayer:(pid,f,sh)=>{const u={};for(const k in f)u['a.'+k]=f[k];if(sh!=null)u.shards=sh;return fs.updateDoc(doc('players',pid),u)},
+    setPlayer:(id,data)=>fs.setDoc(doc('players',id),data),
+    deletePlayer:id=>fs.deleteDoc(doc('players',id)),
+    addTrade:data=>fs.addDoc(col('trades'),data),
+    setConfig:data=>fs.setDoc(doc('meta','config'),data,{merge:true})}}
+
+/* ---------- state access ---------- */
+function str(p,key){const pend=S.pending[p.id];if(pend&&pend[key]!=null)return pend[key];const s=(p.a||{})[key];const n=ALB[key].n;return (typeof s==='string'&&s.length===n)?s:'0'.repeat(n)}
+function shardsOf(p){const pend=S.pending[p.id];if(pend&&pend.shards!=null)return pend.shards;return Number(p.shards)||0}
+function setShards(pid,n){(S.pending[pid]||(S.pending[pid]={})).shards=Math.max(0,Math.min(999,n));clearTimeout(S.pending[pid]._t);S.pending[pid]._t=setTimeout(()=>flush(pid),500)}
+function playerList(){return Object.values(S.players).sort((a,b)=>(a.order??99)-(b.order??99)||a.name.localeCompare(b.name))}
+function snapshotCounts(){const m={};for(const p of playerList()){m[p.id]={};for(const k of ALLKEYS)m[p.id][k]=str(p,k).split('').map(Number)}return m}
+
+/* ---------- writes ---------- */
+function setStr(pid,key,s){(S.pending[pid]||(S.pending[pid]={}))[key]=s;clearTimeout(S.pending[pid]._t);S.pending[pid]._t=setTimeout(()=>flush(pid),500)}
+async function flush(pid){
+  if(S.writing[pid]||!S.api)return;const pend=S.pending[pid];if(!pend)return;
+  const fields={};for(const k of ALLKEYS)if(pend[k]!=null)fields[k]=pend[k];
+  const sh=pend.shards;
+  if(!Object.keys(fields).length&&sh==null)return;
+  S.writing[pid]=true;
+  try{await S.api.updatePlayer(pid,fields,sh);for(const k in fields)if(pend[k]===fields[k])delete pend[k];if(sh!=null&&pend.shards===sh)delete pend.shards}
+  catch(e){handleWriteErr(e);for(const k in fields)delete pend[k];delete pend.shards}
+  finally{S.writing[pid]=false}
+  if(ALLKEYS.some(k=>pend[k]!=null)||pend.shards!=null)flush(pid);else render();
+}
+function handleWriteErr(e){const c=e&&e.code;if(c==='invalid_argument'||c==='permission-denied'){S.ro=true;toast(T('noEdit'))}else toast(T('saveFail'));render()}
+function bump(pid,key,idx,delta){const s=str(S.players[pid],key);const v=Math.max(0,Math.min(9,Number(s[idx])+delta));if(v===Number(s[idx]))return;setStr(pid,key,s.slice(0,idx)+v+s.slice(idx+1))}
+
+/* ---------- planner ---------- */
+function plan(){
+  const C=snapshotCounts();const ids=Object.keys(C);const t=today();
+  const split=S.config.mode==='split';
+  const cap={};for(const id of ids)cap[id]=split?{req:1,acc:1}:{tot:2};
+  for(const tr of S.trades)if(tr.day===t){
+    if(cap[tr.req]){if(split)cap[tr.req].req--;else cap[tr.req].tot--}
+    if(cap[tr.acc]){if(split)cap[tr.acc].acc--;else cap[tr.acc].tot--}}
+  const canReq=id=>split?cap[id].req>0:cap[id].tot>0, canAcc=id=>split?cap[id].acc>0:cap[id].tot>0;
+  const out=[];
+  for(let guard=0;guard<80;guard++){
+    const miss={},dem={};
+    for(const id of ids)for(const k of ALLKEYS)miss[id+k]=C[id][k].filter(v=>v===0).length;
+    for(const k of ALLKEYS){dem[k]=new Array(ALB[k].n).fill(0);for(const id of ids)C[id][k].forEach((v,i)=>{if(v===0)dem[k][i]++})}
+    const gain=(id,k,i)=>C[id][k][i]===0?CBY[ALB[k].c].w*(1+4/miss[id+k]):0;
+    let best=null;
+    for(const A of ids){if(!canReq(A))continue;
+      for(const B of ids){if(A===B||!canAcc(B))continue;
+        for(const c of COLORS){
+          let y=null,x=null;
+          for(const k of KEYS(c)){const a=C[A][k],b=C[B][k];
+            for(let i=0;i<a.length;i++){
+              if(b[i]>=2){const g=gain(A,k,i);const sc=g*1000+b[i]-dem[k][i]*(g?0:5);if(!y||sc>y.sc)y={k,i,g,sc}}
+              if(a[i]>=2){const g=gain(B,k,i);const sc=g*1000+a[i]-dem[k][i]*(g?0:5);if(!x||sc>x.sc)x={k,i,g,sc}}}}
+          if(!x||!y)continue;const tot=x.g+y.g;if(tot<=0)continue;
+          const score=tot+(x.g&&y.g?0.01:0);
+          if(!best||score>best.score)best={score,A,B,x,y}}}}
+    if(!best)break;
+    const {A,B,x,y}=best;
+    const compA=!!(y.g&&miss[A+y.k]===1), compB=!!(x.g&&miss[B+x.k]===1);
+    C[A][x.k][x.i]--;C[B][x.k][x.i]++;C[B][y.k][y.i]--;C[A][y.k][y.i]++;
+    if(split){cap[A].req--;cap[B].acc--}else{cap[A].tot--;cap[B].tot--}
+    out.push({req:A,acc:B,give:{k:x.k,i:x.i},get:{k:y.k,i:y.i},gReq:y.g>0,gAcc:x.g>0,compA,compB});
+  }
+  return out;
+}
+async function markDone(tr){
+  if(S.ro||!S.api)return;
+  const A=S.players[tr.req],B=S.players[tr.acc];if(!A||!B)return;
+  const ch=(p,k,i,d)=>{const s=str(p,k);const v=Math.min(9,Math.max(0,Number(s[i])+d));setStr(p.id,k,s.slice(0,i)+v+s.slice(i+1))};
+  ch(A,tr.give.k,tr.give.i,-1);ch(B,tr.give.k,tr.give.i,+1);ch(B,tr.get.k,tr.get.i,-1);ch(A,tr.get.k,tr.get.i,+1);
+  try{await S.api.addTrade({at:Date.now(),day:today(),req:tr.req,acc:tr.acc,give:tr.give,get:tr.get});toast(T('saved'))}
+  catch(e){handleWriteErr(e)}
+  render();
+}
+
+function shardTips(){
+  const C=snapshotCounts();const ids=Object.keys(C);const out=[];
+  for(const id of ids){let s=shardsOf(S.players[id]);if(!s)continue;const mine=JSON.parse(JSON.stringify(C[id]));
+    while(s>0){let best=null;
+      for(const k of ALLKEYS){const miss=mine[k].filter(v=>v===0).length;if(!miss)continue;
+        for(let i=0;i<mine[k].length;i++){if(mine[k][i]!==0)continue;if(ids.some(o=>o!==id&&C[o][k][i]>=2))continue;
+          const sc=CBY[ALB[k].c].w*(1+4/miss);if(!best||sc>best.sc)best={k,i,sc,comp:miss===1}}}
+      if(!best)break;mine[best.k][best.i]=1;out.push({pid:id,k:best.k,i:best.i,comp:best.comp});s--}}
+  return out;
+}
+async function useShard(pid,k,i){const p=S.players[pid];if(!p||!canEdit())return;const n=shardsOf(p);if(n<1)return;
+  const s=str(p,k);if(s[i]!=='0')return;setStr(pid,k,s.slice(0,i)+'1'+s.slice(i+1));setShards(pid,n-1);toast(T('used',{x:ALB[k].name+' #'+(i+1)}));render()}
+
+/* ---------- render ---------- */
+const canEdit=()=>!!S.api&&!S.ro;
+function nm(id){return esc(S.players[id]?.name||'?')}
+function renderChrome(){
+  document.documentElement.lang=S.lang;$('#lang').value=S.lang;$('#sub').textContent=T('sub');
+  const tl={plan:'tabPlan',stanje:'tabCol',rupe:'tabGaps',istorija:'tabHist'};
+  document.querySelectorAll('.tabs button').forEach(b=>{b.textContent=T(tl[b.dataset.tab]);b.setAttribute('aria-selected',b.dataset.tab===S.tab)});
+  const cl=$('#copylink');cl.hidden=!FIREBASE_CONFIG||!S.api;cl.textContent=T('copyLink');
+  let h='';
+  if(S.loaded&&!S.api)h=`<div class="banner">${esc(T('noDb'))}</div>`;
+  else if(S.ro)h=`<div class="banner">${esc(T('readOnly'))}</div>`;
+  $('#banner').innerHTML=h;
+}
+function meSelect(){
+  return `<label class="row"><span class="lbl">${esc(T('iAm'))}</span><select id="me"><option value="">—</option>${playerList().map(p=>`<option value="${p.id}" ${S.me===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>`;
+}
+function renderPlan(){
+  const ps=playerList();const el=$('#tab-plan');
+  if(!S.loaded){el.innerHTML=`<div class="empty">${T('loading')}</div>`;return}
+  if(!ps.length){el.innerHTML=`<div class="empty">${esc(T('noPlayers'))}</div>`;return}
+  const pl=plan();const t=today();const done=S.trades.filter(x=>x.day===t).length;
+  const gold=pl.filter(x=>x.give.k[0]==='g'||x.get.k[0]==='g').length;
+  const newPieces=pl.reduce((s,x)=>s+(x.gReq?1:0)+(x.gAcc?1:0),0);
+  const comps=pl.reduce((s,x)=>s+(x.compA?1:0)+(x.compB?1:0),0);
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:8px">${meSelect()}
+    <span class="note">${esc(T('limit',{x:S.config.mode==='split'?T('limSplit'):T('lim2')}))}</span></div>
+    <div class="stats"><div class="stat"><span class="lbl">${T('trades')}</span><b>${pl.length}</b></div>
+    <div class="stat"><span class="lbl">${T('newPieces')}</span><b>${newPieces}</b></div>
+    <div class="stat"><span class="lbl">${T('withGold')}</span><b style="color:var(--gold)">${gold}</b></div>
+    <div class="stat"><span class="lbl">${T('completions')}</span><b style="color:var(--good)">${comps}</b></div>
+    <div class="stat"><span class="lbl">${T('doneToday')}</span><b>${done}</b></div></div>`;
+  if(!pl.length)h+=`<div class="empty">${esc(T('noTrades'))}</div>`;
+  const ordered=S.me?[...pl.filter(x=>x.req===S.me||x.acc===S.me),...pl.filter(x=>x.req!==S.me&&x.acc!==S.me)]:pl;
+  const gainTxt=(g,c)=>g?`<span class="tag">${esc(c?T('completes'):T('newPiece'))}</span>`:`<span class="tag zero">${esc(T('duplicate'))}</span>`;
+  ordered.forEach((x,n)=>{
+    const mine=S.me&&(x.req===S.me||x.acc===S.me);
+    h+=`<div class="trade${mine?' mine':''}"><div class="n">${n+1}</div><div style="min-width:0">
+      <div>${T('offers',{a:`<span class="who">${nm(x.req)}</span>`,x:pcHtml(x.give.k,x.give.i),y:pcHtml(x.get.k,x.get.i)})}</div>
+      <div class="det">${T('accepted',{b:`<b>${nm(x.acc)}</b>`})} · ${nm(x.req)}: ${gainTxt(x.gReq,x.compA)} · ${nm(x.acc)}: ${gainTxt(x.gAcc,x.compB)}</div></div>
+      <button class="btn" data-done="${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button></div>`});
+  const tips=shardTips();
+  if(ps.some(p=>shardsOf(p)>0)){
+    h+=`<h3 class="lbl" style="margin-top:22px">${esc(T('shardTitle'))}</h3><p class="note">${esc(T('shardNote'))}</p>`;
+    if(!tips.length)h+=`<div class="empty">${esc(T('noShardTips'))}</div>`;
+    tips.forEach(x=>{h+=`<div class="hole" style="justify-content:space-between"><span class="m" style="min-width:0"><b>${nm(x.pid)}</b> (${shardsOf(S.players[x.pid])}) · ${pcHtml(x.k,x.i)}${x.comp?` <span class="tag">${esc(T('completes'))}</span>`:''}</span><button class="btn" data-use="${x.pid}|${x.k}|${x.i}" ${canEdit()?'':'disabled'}>${esc(T('use'))}</button></div>`});
+  }
+  h+=`<details><summary>${esc(T('howTitle'))}</summary><p class="note">${esc(T('howText'))}</p>
+  ${canEdit()?`<div class="row"><span class="lbl">${esc(T('limitRule'))}</span><div class="seg"><button data-mode="total" aria-pressed="${S.config.mode!=='split'}">${esc(T('any2'))}</button><button data-mode="split" aria-pressed="${S.config.mode==='split'}">${esc(T('split'))}</button></div></div>`:''}</details>`;
+  el.innerHTML=h;el._plan=ordered;
+}
+function renderStanje(){
+  const el=$('#tab-stanje');const prevName=document.getElementById('newname')?.value||'';const ps=playerList();
+  if(!S.loaded){el.innerHTML=`<div class="empty">${T('loading')}</div>`;return}
+  let h='';
+  if(ps.length){
+    h+=`<div class="tablewrap"><table><thead><tr><th>${T('player')}</th>${COLORS.map(c=>`<th>${T(c.k)}</th>`).join('')}<th>${esc(T('shards'))}</th></tr></thead><tbody>`;
+    for(const p of ps){h+=`<tr><td>${esc(p.name)}</td>`;
+      for(const c of COLORS){let have=0,full=0,tot=0;for(const k of KEYS(c)){const s=str(p,k);const hv=[...s].filter(v=>v!=='0').length;have+=hv;tot+=ALB[k].n;if(hv===ALB[k].n)full++}
+        h+=`<td class="${c.k}">${have}/${tot}${full?` · ${full}✓`:''}<div class="bar"><i style="width:${(have/tot*100).toFixed(1)}%"></i></div></td>`}
+      h+=`<td>${shardsOf(p)}</td></tr>`}
+    h+='</tbody></table></div>';
+  }else h+=`<div class="empty">${esc(T('noPlayers'))}</div>`;
+  if(!S.sel||!S.players[S.sel])S.sel=S.me&&S.players[S.me]?S.me:ps[0]?.id;
+  h+=`<div class="chips" style="margin-bottom:10px">${ps.map(p=>`<button class="chip" data-sel="${p.id}" aria-pressed="${p.id===S.sel}">${esc(p.name)}</button>`).join('')}</div>`;
+  if(canEdit()&&ps.length)h+=`<div class="row" style="margin-bottom:6px"><div class="seg"><button data-em="add" aria-pressed="${S.editMode==='add'}">${esc(T('add'))}</button><button data-em="sub" aria-pressed="${S.editMode==='sub'}">${esc(T('remove'))}</button></div><span class="note">${esc(T('tapHint'))}</span></div>`;
+  const p=S.players[S.sel];
+  if(p)h+=`<div class="row" style="margin:10px 0 4px"><span class="lbl">${esc(T('shardTitle'))}</span>${canEdit()?`<button class="btn" data-shard="-1" aria-label="−">−</button>`:''}<b style="font:600 1.2rem var(--label);min-width:2ch;text-align:center;font-variant-numeric:tabular-nums">${shardsOf(p)}</b>${canEdit()?`<button class="btn" data-shard="1" aria-label="+">+</button>`:''}</div>`;
+  if(p)for(const c of COLORS){
+    h+=`<div class="colorsec ${c.k}"><h3>${T(c.k)}</h3><div class="albums">`;
+    for(const k of KEYS(c)){const A=ALB[k];const s=str(p,k);const hv=[...s].filter(v=>v!=='0').length;const dup=[...s].reduce((a,v)=>a+Math.max(0,v-1),0);
+      h+=`<div class="album${hv===A.n?' done':''}"><div class="hd"><span title="${esc(A.name)}">${esc(A.name)}</span><em>${hv}/${A.n}${dup?` · ${dup} ${esc(T('dupShort'))}`:''}</em></div><div class="grid" style="grid-template-columns:repeat(${A.cols},1fr)">`;
+      for(let i=0;i<A.n;i++){const v=+s[i];h+=`<button class="cell${v?' have':''}" data-cell="${k}:${i}" aria-label="${esc(A.name)} #${i+1}: ${esc(v?T('cellDup',{n:v-1}):T('cellMissing'))}" ${canEdit()?'':'disabled'}>${i+1}${v>1?`<span class="d">+${v-1}</span>`:''}</button>`}
+      h+='</div></div>'}
+    h+='</div></div>'}
+  if(canEdit()){
+    h+=`<form id="addp" class="row" style="margin-top:22px"><input type="text" id="newname" placeholder="${esc(T('newName'))}" maxlength="30" aria-label="${esc(T('newName'))}"><button class="btn" type="submit">${esc(T('addPlayer'))}</button></form>`;
+    if(p)h+=S.confirmDel?`<div class="row" style="margin-top:12px"><span>${esc(T('confirmRemove',{n:p.name}))}</span><button class="btn danger" data-delyes="1">${esc(T('removePlayer'))}</button><button class="btn" data-delno="1">${esc(T('cancel'))}</button></div>`
+      :`<div style="margin-top:12px"><button class="btn danger" data-del="1">${esc(T('removePlayer'))}: ${esc(p.name)}</button></div>`;
+  }
+  el.innerHTML=h;const ni=document.getElementById('newname');if(ni&&prevName)ni.value=prevName;
+}
+function renderRupe(){
+  const el=$('#tab-rupe');const C=snapshotCounts();const ids=Object.keys(C);
+  if(!ids.length){el.innerHTML=`<div class="empty">${esc(T('noData'))}</div>`;return}
+  let holes='',extra='';
+  for(const k of ALLKEYS)for(let i=0;i<ALB[k].n;i++){
+    const missing=ids.filter(id=>C[id][k][i]===0),dupers=ids.filter(id=>C[id][k][i]>=2);
+    if(missing.length&&!dupers.length)holes+=`<div class="hole">${pcHtml(k,i)}<span class="m">${T('missingList',{list:missing.map(nm).join(', ')})}</span></div>`;
+    if(!missing.length&&dupers.length)extra+=`<div class="hole">${pcHtml(k,i)}<span class="m">${dupers.map(id=>nm(id)+(C[id][k][i]>2?' ×'+(C[id][k][i]-1):'')).join(', ')}</span></div>`;
+  }
+  el.innerHTML=`<p class="note">${esc(T('gapsInfo'))}</p>
+  <h3 class="lbl" style="margin-top:16px">${esc(T('gaps'))}</h3>${holes||`<div class="empty">${esc(T('noGaps'))}</div>`}
+  <h3 class="lbl" style="margin-top:22px">${esc(T('extras'))}</h3>${extra||`<div class="empty">${esc(T('noExtras'))}</div>`}`;
+}
+function renderIstorija(){
+  const el=$('#tab-istorija');
+  const list=S.trades.filter(t=>ALB[t.give?.k]&&ALB[t.get?.k]);
+  if(!list.length){el.innerHTML=`<div class="empty">${esc(T('noHist'))}</div>`;return}
+  el.innerHTML=list.slice(0,200).map(t=>`<div class="hole"><span class="lbl">${esc(t.day)}</span><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join('');
+}
+function render(){
+  renderChrome();
+  if(!$('#tab-plan'))return;
+  for(const t of ['plan','stanje','rupe','istorija'])$('#tab-'+t).hidden=t!==S.tab;
+  ({plan:renderPlan,stanje:renderStanje,rupe:renderRupe,istorija:renderIstorija})[S.tab]();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.tab){S.tab=b.dataset.tab;ls.set('tab',S.tab);render();return}
+  if(b.dataset.sel){S.sel=b.dataset.sel;S.confirmDel=false;render();return}
+  if(b.dataset.em){S.editMode=b.dataset.em;render();return}
+  if(b.dataset.cell&&canEdit()){const [k,i]=b.dataset.cell.split(':');bump(S.sel,k,+i,S.editMode==='add'?1:-1);render();return}
+  if(b.dataset.done!=null){const tr=$('#tab-plan')._plan[+b.dataset.done];b.disabled=true;markDone(tr);return}
+  if(b.dataset.mode&&canEdit()){S.config.mode=b.dataset.mode;S.api.setConfig({mode:b.dataset.mode}).catch(handleWriteErr);render();return}
+  if(b.dataset.shard&&canEdit()&&S.players[S.sel]){setShards(S.sel,shardsOf(S.players[S.sel])+Number(b.dataset.shard));render();return}
+  if(b.dataset.use&&canEdit()){const [pid,k,i]=b.dataset.use.split('|');b.disabled=true;useShard(pid,k,+i);return}
+  if(b.dataset.del){S.confirmDel=true;render();return}
+  if(b.dataset.delno){S.confirmDel=false;render();return}
+  if(b.dataset.delyes&&canEdit()){const p=S.players[S.sel];S.confirmDel=false;if(!p)return;
+    try{await S.api.deletePlayer(p.id);toast(T('removed',{n:p.name}));S.sel=null}catch(err){handleWriteErr(err)}return}
+  if(b.id==='copylink'){const url=location.href;try{await navigator.clipboard.writeText(url);toast(T('copied'))}catch(_){toast(url)}return}
+  if(b.id==='createteam'){b.disabled=true;createTeam();return}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
+  if(e.target.id==='lang'){S.lang=e.target.value;ls.set('lang',S.lang);if($('#createteam'))showWelcome();else render()}
+});
+document.addEventListener('submit',async e=>{
+  if(e.target.id!=='addp')return;e.preventDefault();
+  const name=$('#newname').value.trim();if(!name||!canEdit())return;
+  const id=slug(name);
+  if(S.players[id]){toast(T('exists'));return}
+  const order=Math.max(0,...playerList().map(p=>p.order||0))+1;
+  try{await S.api.setPlayer(id,{name,order,shards:0,a:emptyAlbums()});$('#newname').value='';S.sel=id;toast(T('added',{n:name}))}catch(err){handleWriteErr(err)}
+});
+
+/* ---------- boot ---------- */
+function startSubs(){
+  S.api.subPlayers(list=>{const m={};for(const v of list)m[v.id]={id:v.id,name:v.name||v.id,order:v.order,a:v.a||{},shards:v.shards||0};S.players=m;S.loaded=true;render()},
+    err=>{S.loaded=true;if(err&&err.code==='permission-denied')S.api=null;render()});
+  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total'};render()});
+  S.api.subTrades(list=>{S.trades=list;render()});
+}
+const teamId=()=>{const h=location.hash.slice(1);return /^[A-Za-z0-9_-]{20,64}$/.test(h)?h:null};
+function showWelcome(){
+  renderChrome();$('#app').innerHTML=`<div class="welcome"><b>${esc(T('welcome'))}</b><p class="note">${esc(T('welcomeNote'))}</p><div><button class="btn primary" id="createteam">${esc(T('createTeam'))}</button></div></div>`;
+}
+async function createTeam(){
+  const a=new Uint8Array(20);crypto.getRandomValues(a);
+  const id=Array.from(a,x=>'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[x%62]).join('');
+  try{const api=await firebaseAdapter(FIREBASE_CONFIG,id);
+    for(const [i,name] of DEFAULT_PLAYERS.entries())await api.setPlayer(slug(name),{name,order:i+1,shards:0,a:emptyAlbums()});
+    await api.setConfig({mode:'total'});
+  }catch(e){toast(T('saveFail'));const b=$('#createteam');if(b)b.disabled=false;return}
+  location.hash=id;location.reload();
+}
+(async()=>{
+  render();
+  if(FIREBASE_CONFIG){
+    const tid=teamId();
+    if(!tid){showWelcome();return}
+    try{S.api=await firebaseAdapter(FIREBASE_CONFIG,tid);startSubs()}catch(e){S.loaded=true;render()}
+    window.addEventListener('hashchange',()=>location.reload());
+    return;
+  }
+  const db=await window.claude?.use?.('db');
+  if(!db){S.loaded=true;render();return}
+  S.api=claudeAdapter(db);
+  try{const user=await window.claude.use('user');if(user?.can?.('data.write')===false)S.ro=true}catch(_){}
+  startSubs();
+})();
+</script>
+
+</body>
+</html>
