@@ -149,7 +149,7 @@ const COLORS=[
   {k:'g',w:5,albums:[["Snowy Aurora Night",28],["Covenant of Fate",28],["Floral Ocean Glow",28],["Romantic Voyage",28],["Moonlight Ritual",28],["Deer in the Woods",28]]},
   {k:'p',w:2,albums:[["Harvest Caravan",24],["Snow Wolf Pack",24],["Whispering Shore",24],["Bonfire Gala",24],["Time of Celebration",15],["Pastoral Banquet",15]]},
   {k:'b',w:1,albums:[["Treasure Expedition",14],["Hero's Advantage",14],["Phantom Treasure",14],["Starlight on Snow",14]]}];
-const ALB={};const COLS={28:7,24:6,15:5,14:7};
+const ALB={};const COLS={28:7,24:6,15:5,14:5};
 for(const c of COLORS)c.albums.forEach(([name,n],i)=>{ALB[c.k+(i+1)]={name,n,cols:COLS[n]||7,c:c.k}});
 const CBY=Object.fromEntries(COLORS.map(c=>[c.k,c]));
 const KEYS=c=>c.albums.map((_,i)=>c.k+(i+1));
