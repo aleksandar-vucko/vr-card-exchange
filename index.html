@@ -584,6 +584,7 @@ async function runImports(){
   const names=[];
   for(const im of todo){
     try{
+      if(im.reset){for(const p of playerList())await S.api.updatePlayer(p.id,emptyAlbums(),0);applied.add(im.id);names.push('—');continue}
       const id=slug(String(im.player||''));if(!id)continue;
       const albums={};for(const k in (im.albums||{}))if(ALB[k]&&typeof im.albums[k]==='string'&&new RegExp('^[0-9]{'+ALB[k].n+'}$').test(im.albums[k]))albums[k]=im.albums[k];
       const sh=Number.isFinite(im.shards)?Math.max(0,Math.round(im.shards)):null;
@@ -594,7 +595,7 @@ async function runImports(){
     }catch(e){console.warn('import failed',im.id,e)}
   }
   try{await S.api.setConfig({applied:[...applied].slice(-500)})}catch(_){}
-  if(names.length)toast(T('imported',{n:[...new Set(names)].join(', ')}));
+  if(names.length)toast(T('imported',{n:[...new Set(names)].filter(x=>x!=='—').join(', ')||'—'}));
 }
 
 /* ---------- boot ---------- */
