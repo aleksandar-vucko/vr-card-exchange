@@ -91,6 +91,7 @@ td.c{display:table-cell}
 .cmp tr.on td{background:var(--surface2)}
 .cmp td b{color:var(--good)}
 .legend .c{padding:0 4px}
+.acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .dayhd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-top:22px;padding-bottom:6px;border-bottom:2px solid var(--line)}
 .dayhd span{font:600 1.05rem var(--display)}
 .dayhd.now span{color:var(--gold)}
@@ -199,6 +200,8 @@ const EXTRA3={"en": {"tabOut": "Outcome", "strategy": "Strategy", "st_focus": "M
 for(const l in EXTRA3)Object.assign(I18N[l],EXTRA3[l]);
 const EXTRA4={"en": {"curState": "Current state", "lgCur": "Pieces owned in each album (gold 28, purple 24 or 15, blue 15). +n is duplicates."}, "de": {"curState": "Aktueller Stand", "lgCur": "Vorhandene Teile pro Album (Gold 28, Lila 24 oder 15, Blau 15). +n sind Duplikate."}, "tr": {"curState": "Mevcut durum", "lgCur": "Her albümde sahip olunan parçalar (altın 28, mor 24 veya 15, mavi 15). +n kopya sayısıdır."}, "es": {"curState": "Estado actual", "lgCur": "Piezas que tiene en cada álbum (doradas 28, moradas 24 o 15, azules 15). +n son duplicados."}, "fr": {"curState": "État actuel", "lgCur": "Pièces possédées par album (dorées 28, violettes 24 ou 15, bleues 15). +n correspond aux doublons."}};
 for(const l in EXTRA4)Object.assign(I18N[l],EXTRA4[l]);
+const EXTRA5={"en": {"reqOffer": "{a} requests {y} and offers {x} to {b}", "copyBtn": "Copy", "copiedTrade": "Copied"}, "de": {"reqOffer": "{a} fragt nach {y} und bietet {b} dafür {x}", "copyBtn": "Kopieren", "copiedTrade": "Kopiert"}, "tr": {"reqOffer": "{a}, {y} istiyor ve {b} oyuncusuna {x} teklif ediyor", "copyBtn": "Kopyala", "copiedTrade": "Kopyalandı"}, "es": {"reqOffer": "{a} pide {y} y ofrece {x} a {b}", "copyBtn": "Copiar", "copiedTrade": "Copiado"}, "fr": {"reqOffer": "{a} demande {y} et propose {x} à {b}", "copyBtn": "Copier", "copiedTrade": "Copié"}};
+for(const l in EXTRA5)Object.assign(I18N[l],EXTRA5[l]);
 
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
@@ -383,6 +386,8 @@ function renderChrome(){
   else if(S.ro)h=`<div class="banner">${esc(T('readOnly'))}</div>`;
   $('#banner').innerHTML=h;
 }
+function tradeText(x){const pc=(k,i)=>albumName(k)+' #'+(i+1);
+  return T('reqOffer',{a:S.players[x.req]?.name||'?',y:pc(x.get.k,x.get.i),x:pc(x.give.k,x.give.i),b:S.players[x.acc]?.name||'?'})}
 function dayLabel(d){
   const dt=new Date();dt.setDate(dt.getDate()+d);
   let f='';try{f=new Intl.DateTimeFormat(S.lang,{weekday:'short',day:'numeric',month:'short'}).format(dt)}catch(_){f=dt.toDateString()}
@@ -412,9 +417,9 @@ function renderPlan(){
     h+=`<div class="dayhd${day.d===0?' now':''}"><span>${esc(dayLabel(day.d))}</span><em>${day.trades.length} ${esc(T('trades').toLowerCase())}</em></div>`;
     day.trades.forEach((x,n)=>{
       h+=`<div class="trade"><div class="n">${n+1}</div><div style="min-width:0">
-        <div>${T('offers',{a:`<span class="who">${nm(x.req)}</span>`,x:pcHtml(x.give.k,x.give.i),y:pcHtml(x.get.k,x.get.i)})}</div>
-        <div class="det">${T('accepted',{b:`<b>${nm(x.acc)}</b>`})} · ${nm(x.req)}: ${gainTxt(x.gReq,x.compA)} · ${nm(x.acc)}: ${gainTxt(x.gAcc,x.compB)}</div></div>
-        ${day.d===0?`<button class="btn" data-done="${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button>`:'<span></span>'}</div>`});
+        <div>${T('reqOffer',{a:`<span class="who">${nm(x.req)}</span>`,y:pcHtml(x.get.k,x.get.i),x:pcHtml(x.give.k,x.give.i),b:`<span class="who">${nm(x.acc)}</span>`})}</div>
+        <div class="det">${nm(x.req)}: ${gainTxt(x.gReq,x.compA)} · ${nm(x.acc)}: ${gainTxt(x.gAcc,x.compB)}</div></div>
+        <div class="acts">${day.d===0?`<button class="btn" data-done="${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button>`:''}<button class="btn" data-copy="${esc(tradeText(x))}">${esc(T('copyBtn'))}</button></div></div>`});
   }
   const tips=shardTips();
   if(ps.some(p=>shardsOf(p)>0)){
@@ -542,6 +547,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.sel){S.sel=b.dataset.sel;S.confirmDel=false;render();return}
   if(b.dataset.em){S.editMode=b.dataset.em;render();return}
   if(b.dataset.cell&&canEdit()){const [k,i]=b.dataset.cell.split(':');bump(S.sel,k,+i,S.editMode==='add'?1:-1);render();return}
+  if(b.dataset.copy!=null){const t=b.dataset.copy;try{await navigator.clipboard.writeText(t);toast(T('copiedTrade'))}catch(_){toast(t)}return}
   if(b.dataset.done!=null){const tr=$('#tab-plan')._plan[+b.dataset.done];b.disabled=true;markDone(tr);return}
   if(b.dataset.mode&&canEdit()){S.config.mode=b.dataset.mode;S.api.setConfig({mode:b.dataset.mode}).catch(handleWriteErr);render();return}
   if(b.dataset.shard&&canEdit()&&S.players[S.sel]){setShards(S.sel,shardsOf(S.players[S.sel])+Number(b.dataset.shard));render();return}
