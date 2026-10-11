@@ -421,12 +421,6 @@ function renderPlan(){
         <div class="det">${nm(x.req)}: ${gainTxt(x.gReq,x.compA)} · ${nm(x.acc)}: ${gainTxt(x.gAcc,x.compB)}</div></div>
         <div class="acts"><button class="btn" data-done="${day.d}:${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button><button class="btn" data-copy="${esc(tradeText(x))}">${esc(T('copyBtn'))}</button></div></div>`});
   }
-  const tips=shardTips();
-  if(ps.some(p=>shardsOf(p)>0)){
-    h+=`<h3 class="lbl" style="margin-top:22px">${esc(T('shardTitle'))}</h3><p class="note">${esc(T('shardNote'))}</p>`;
-    if(!tips.length)h+=`<div class="empty">${esc(T('noShardTips'))}</div>`;
-    tips.forEach(x=>{h+=`<div class="hole" style="justify-content:space-between"><span class="m" style="min-width:0"><b>${nm(x.pid)}</b> (${shardsOf(S.players[x.pid])}) · ${pcHtml(x.k,x.i)}${x.comp?` <span class="tag">${esc(T('completes'))}</span>`:''}</span><button class="btn" data-use="${x.pid}|${x.k}|${x.i}" ${canEdit()?'':'disabled'}>${esc(T('use'))}</button></div>`});
-  }
   h+=`<details><summary>${esc(T('howTitle'))}</summary><p class="note">${esc(T('howText'))}</p>
   ${canEdit()?`<div class="row"><span class="lbl">${esc(T('limitRule'))}</span><div class="seg"><button data-mode="total" aria-pressed="${S.config.mode!=='split'}">${esc(T('any2'))}</button><button data-mode="split" aria-pressed="${S.config.mode==='split'}">${esc(T('split'))}</button></div></div>`:''}</details>`;
   el.innerHTML=h;el._plan=todayTrades;el._days=Object.fromEntries(days.map(x=>[x.d,x.trades]));
