@@ -419,7 +419,7 @@ function renderPlan(){
       h+=`<div class="trade"><div class="n">${n+1}</div><div style="min-width:0">
         <div>${T('reqOffer',{a:`<span class="who">${nm(x.req)}</span>`,y:pcHtml(x.get.k,x.get.i),x:pcHtml(x.give.k,x.give.i),b:`<span class="who">${nm(x.acc)}</span>`})}</div>
         <div class="det">${nm(x.req)}: ${gainTxt(x.gReq,x.compA)} · ${nm(x.acc)}: ${gainTxt(x.gAcc,x.compB)}</div></div>
-        <div class="acts">${day.d===0?`<button class="btn" data-done="${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button>`:''}<button class="btn" data-copy="${esc(tradeText(x))}">${esc(T('copyBtn'))}</button></div></div>`});
+        <div class="acts"><button class="btn" data-done="${day.d}:${n}" ${canEdit()?'':'disabled'}>${esc(T('done'))}</button><button class="btn" data-copy="${esc(tradeText(x))}">${esc(T('copyBtn'))}</button></div></div>`});
   }
   const tips=shardTips();
   if(ps.some(p=>shardsOf(p)>0)){
@@ -429,7 +429,7 @@ function renderPlan(){
   }
   h+=`<details><summary>${esc(T('howTitle'))}</summary><p class="note">${esc(T('howText'))}</p>
   ${canEdit()?`<div class="row"><span class="lbl">${esc(T('limitRule'))}</span><div class="seg"><button data-mode="total" aria-pressed="${S.config.mode!=='split'}">${esc(T('any2'))}</button><button data-mode="split" aria-pressed="${S.config.mode==='split'}">${esc(T('split'))}</button></div></div>`:''}</details>`;
-  el.innerHTML=h;el._plan=todayTrades;
+  el.innerHTML=h;el._plan=todayTrades;el._days=Object.fromEntries(days.map(x=>[x.d,x.trades]));
 }
 function renderStanje(){
   const el=$('#tab-stanje');const prevName=document.getElementById('newname')?.value||'';const ps=playerList();
@@ -548,7 +548,7 @@ document.addEventListener('click',async e=>{
   if(b.dataset.em){S.editMode=b.dataset.em;render();return}
   if(b.dataset.cell&&canEdit()){const [k,i]=b.dataset.cell.split(':');bump(S.sel,k,+i,S.editMode==='add'?1:-1);render();return}
   if(b.dataset.copy!=null){const t=b.dataset.copy;try{await navigator.clipboard.writeText(t);toast(T('copiedTrade'))}catch(_){toast(t)}return}
-  if(b.dataset.done!=null){const tr=$('#tab-plan')._plan[+b.dataset.done];b.disabled=true;markDone(tr);return}
+  if(b.dataset.done!=null){const [dd,nn]=b.dataset.done.split(':');const tr=($('#tab-plan')._days||{})[dd]?.[+nn];if(!tr)return;b.disabled=true;markDone(tr);return}
   if(b.dataset.mode&&canEdit()){S.config.mode=b.dataset.mode;S.api.setConfig({mode:b.dataset.mode}).catch(handleWriteErr);render();return}
   if(b.dataset.shard&&canEdit()&&S.players[S.sel]){setShards(S.sel,shardsOf(S.players[S.sel])+Number(b.dataset.shard));render();return}
   if(b.dataset.use&&canEdit()){const [pid,k,i]=b.dataset.use.split('|');b.disabled=true;useShard(pid,k,+i);return}
