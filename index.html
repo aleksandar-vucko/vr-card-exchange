@@ -285,6 +285,7 @@ function planStep(C,cap,split,strat,shards){
   const ids=Object.keys(C);
   const canReq=id=>split?cap[id].req>0:cap[id].tot>0, canAcc=id=>split?cap[id].acc>0:cap[id].tot>0;
   const out=[];
+  /* The requester (A) may only request a piece they do not own yet; the accepter (B) may receive a duplicate. */
   for(let guard=0;guard<80;guard++){
     const miss={},dem={};
     for(const id of ids)for(const k of ALLKEYS)miss[id+k]=C[id][k].filter(v=>v===0).length;
@@ -297,7 +298,7 @@ function planStep(C,cap,split,strat,shards){
           let y=null,x=null;
           for(const k of KEYS(c)){const a=C[A][k],b=C[B][k];
             for(let i=0;i<a.length;i++){
-              if(b[i]>=2){const g=gain(A,k,i);const sc=g*1000+b[i]-dem[k][i]*(g?0:5);if(!y||sc>y.sc)y={k,i,g,sc}}
+              if(b[i]>=2&&a[i]===0){const g=gain(A,k,i);const sc=g*1000+b[i]-dem[k][i]*(g?0:5);if(!y||sc>y.sc)y={k,i,g,sc}}
               if(a[i]>=2){const g=gain(B,k,i);const sc=g*1000+a[i]-dem[k][i]*(g?0:5);if(!x||sc>x.sc)x={k,i,g,sc}}}}
           if(!x||!y)continue;const tot=x.g+y.g;if(tot<=0)continue;
           const score=tot+(x.g&&y.g?0.01:0);
