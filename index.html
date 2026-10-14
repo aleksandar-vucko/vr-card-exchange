@@ -202,6 +202,12 @@ const EXTRA4={"en": {"curState": "Current state", "lgCur": "Pieces owned in each
 for(const l in EXTRA4)Object.assign(I18N[l],EXTRA4[l]);
 const EXTRA5={"en": {"reqOffer": "{a} requests {y} and offers {x} to {b}", "copyBtn": "Copy", "copiedTrade": "Copied"}, "de": {"reqOffer": "{a} fragt nach {y} und bietet {b} dafür {x}", "copyBtn": "Kopieren", "copiedTrade": "Kopiert"}, "tr": {"reqOffer": "{a}, {y} istiyor ve {b} oyuncusuna {x} teklif ediyor", "copyBtn": "Kopyala", "copiedTrade": "Kopyalandı"}, "es": {"reqOffer": "{a} pide {y} y ofrece {x} a {b}", "copyBtn": "Copiar", "copiedTrade": "Copiado"}, "fr": {"reqOffer": "{a} demande {y} et propose {x} à {b}", "copyBtn": "Copier", "copiedTrade": "Copié"}};
 for(const l in EXTRA5)Object.assign(I18N[l],EXTRA5[l]);
+const EXTRA6={"en":{"st_balancedDup":"Balanced w/ duplicates","stDesc_balancedDup":"Like Balanced, but also plans trades where one player gets a piece they already have, so the other player gets a new one."},
+"de":{"st_balancedDup":"Ausgewogen mit Duplikaten","stDesc_balancedDup":"Wie Ausgewogen, plant aber auch Tausche, bei denen ein Spieler ein Teil bekommt, das er schon hat, damit der andere ein neues bekommt."},
+"tr":{"st_balancedDup":"Dengeli (kopyalarla)","stDesc_balancedDup":"Dengeli gibi, ama bir oyuncunun zaten sahip olduğu parçayı aldığı takasları da planlar, böylece diğer oyuncu yeni bir parça alır."},
+"es":{"st_balancedDup":"Equilibrada con duplicados","stDesc_balancedDup":"Como Equilibrada, pero también planifica intercambios en los que un jugador recibe una pieza que ya tiene, para que el otro reciba una nueva."},
+"fr":{"st_balancedDup":"Équilibrée avec doublons","stDesc_balancedDup":"Comme Équilibrée, mais prévoit aussi des échanges où un joueur reçoit une pièce qu'il a déjà, pour que l'autre en reçoive une nouvelle."}};
+for(const l in EXTRA6)Object.assign(I18N[l],EXTRA6[l]);
 
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
@@ -268,7 +274,7 @@ function handleWriteErr(e){const c=e&&e.code;if(c==='invalid_argument'||c==='per
 function bump(pid,key,idx,delta){const s=str(S.players[pid],key);const v=Math.max(0,Math.min(9,Number(s[idx])+delta));if(v===Number(s[idx]))return;setStr(pid,key,s.slice(0,idx)+v+s.slice(idx+1))}
 
 /* ---------- planner ---------- */
-const STRATS=['focus','balanced','fair'];
+const STRATS=['focus','balanced','fair','balancedDup'];
 function gainFn(strat,C,ids,miss,shards){
   if(strat==='focus'){
     const spare={};for(const k of ALLKEYS){const sp=new Array(ALB[k].n).fill(0);for(const id of ids)C[id][k].forEach((v,i)=>{if(v>1)sp[i]+=v-1});spare[k]=sp}
@@ -285,6 +291,8 @@ function planStep(C,cap,split,strat,shards){
   const ids=Object.keys(C);
   const canReq=id=>split?cap[id].req>0:cap[id].tot>0, canAcc=id=>split?cap[id].acc>0:cap[id].tot>0;
   const out=[];
+  /* Only 'balancedDup' allows a trade where the accepter (B) gets a piece they already own; all other strategies need both players to get a new piece. */
+  const both=strat!=='balancedDup';
   /* The requester (A) may only request a piece they do not own yet; the accepter (B) may receive a duplicate. */
   for(let guard=0;guard<80;guard++){
     const miss={},dem={};
@@ -299,7 +307,7 @@ function planStep(C,cap,split,strat,shards){
           for(const k of KEYS(c)){const a=C[A][k],b=C[B][k];
             for(let i=0;i<a.length;i++){
               if(b[i]>=2&&a[i]===0){const g=gain(A,k,i);const sc=g*1000+b[i]-dem[k][i]*(g?0:5);if(!y||sc>y.sc)y={k,i,g,sc}}
-              if(a[i]>=2){const g=gain(B,k,i);const sc=g*1000+a[i]-dem[k][i]*(g?0:5);if(!x||sc>x.sc)x={k,i,g,sc}}}}
+              if(a[i]>=2&&(!both||b[i]===0)){const g=gain(B,k,i);const sc=g*1000+a[i]-dem[k][i]*(g?0:5);if(!x||sc>x.sc)x={k,i,g,sc}}}}
           if(!x||!y)continue;const tot=x.g+y.g;if(tot<=0)continue;
           const score=tot+(x.g&&y.g?0.01:0);
           if(!best||score>best.score)best={score,A,B,x,y}}}}
