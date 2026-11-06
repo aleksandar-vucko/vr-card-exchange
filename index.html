@@ -42,7 +42,7 @@ button{font-family:inherit}
 .savest{font-size:.85rem;color:var(--muted,inherit);white-space:nowrap}.savest.bad{color:var(--bad);font-weight:600}.savest.ok{color:var(--good)}
 .banner{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:.9rem;margin-top:12px}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-select,input[type=text]{font:inherit;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;max-width:100%}
+select,input[type=text],input[type=date]{font:inherit;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;max-width:100%}
 .btn{font:600 .9rem var(--label);letter-spacing:.04em;background:var(--surface2);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 12px;cursor:pointer}
 .btn.primary{background:var(--gold);border-color:var(--gold);color:#1a1408}
 .btn.danger{color:var(--bad)}
@@ -138,11 +138,13 @@ details{margin-top:14px} summary{cursor:pointer;color:var(--muted)}
       <button role="tab" data-tab="stanje"></button>
       <button role="tab" data-tab="rupe"></button>
       <button role="tab" data-tab="istorija"></button>
+      <button role="tab" data-tab="admin"></button>
     </nav>
     <section id="tab-plan"></section>
     <section id="tab-stanje" hidden></section>
     <section id="tab-rupe" hidden></section>
     <section id="tab-istorija" hidden></section>
+    <section id="tab-admin" hidden></section>
     <section id="tab-ishod" hidden></section>
   </div>
 </div>
@@ -216,6 +218,12 @@ const EXTRA7={"en":{"svSaving":"Saving…","svSaved":"✓ Saved","svFail":"⚠ N
 "es":{"svSaving":"Guardando…","svSaved":"✓ Guardado","svFail":"⚠ No guardado: revisa la conexión e inténtalo de nuevo"},
 "fr":{"svSaving":"Enregistrement…","svSaved":"✓ Enregistré","svFail":"⚠ Non enregistré – vérifie la connexion et réessaie"}};
 for(const l in EXTRA7)Object.assign(I18N[l],EXTRA7[l]);
+const EXTRA8={"en":{"tabAdmin":"Admin","adCustom":"Add a trade","adCustomNote":"Record a trade that was done in the game but is not in the plan. Both players' cards are updated.","adFrom":"Player","adTo":"Trades with","adGives":"gives","adDay":"Day","adSave":"Save trade","adDays":"Trade days","adDaysNote":"Change the day if a trade was marked Done on the wrong day. Each player can do 2 trades per day.","adNoHave":"{a} does not have {x}.","adSame":"Both cards must be the same colour.","adPick":"Choose two different players."},
+"de":{"tabAdmin":"Admin","adCustom":"Tausch hinzufügen","adCustomNote":"Einen Tausch eintragen, der im Spiel gemacht wurde, aber nicht im Plan steht. Die Karten beider Spieler werden angepasst.","adFrom":"Spieler","adTo":"Tauscht mit","adGives":"gibt","adDay":"Tag","adSave":"Tausch speichern","adDays":"Tauschtage","adDaysNote":"Den Tag ändern, wenn ein Tausch am falschen Tag als erledigt markiert wurde. Jeder Spieler kann 2 Tausche pro Tag machen.","adNoHave":"{a} hat {x} nicht.","adSame":"Beide Karten müssen dieselbe Farbe haben.","adPick":"Wähle zwei verschiedene Spieler."},
+"tr":{"tabAdmin":"Yönetici","adCustom":"Takas ekle","adCustomNote":"Oyunda yapılan ama planda olmayan bir takası kaydet. İki oyuncunun kartları güncellenir.","adFrom":"Oyuncu","adTo":"Takas yaptığı","adGives":"veriyor","adDay":"Gün","adSave":"Takası kaydet","adDays":"Takas günleri","adDaysNote":"Bir takas yanlış günde tamamlandı olarak işaretlendiyse günü değiştir. Her oyuncu günde 2 takas yapabilir.","adNoHave":"{a} oyuncusunda {x} yok.","adSame":"İki kart aynı renkte olmalı.","adPick":"İki farklı oyuncu seç."},
+"es":{"tabAdmin":"Admin","adCustom":"Añadir intercambio","adCustomNote":"Registra un intercambio hecho en el juego que no está en el plan. Se actualizan las cartas de ambos jugadores.","adFrom":"Jugador","adTo":"Intercambia con","adGives":"da","adDay":"Día","adSave":"Guardar intercambio","adDays":"Días de intercambio","adDaysNote":"Cambia el día si un intercambio se marcó como hecho el día equivocado. Cada jugador puede hacer 2 intercambios al día.","adNoHave":"{a} no tiene {x}.","adSame":"Las dos cartas deben ser del mismo color.","adPick":"Elige dos jugadores distintos."},
+"fr":{"tabAdmin":"Admin","adCustom":"Ajouter un échange","adCustomNote":"Enregistre un échange fait dans le jeu mais absent du plan. Les cartes des deux joueurs sont mises à jour.","adFrom":"Joueur","adTo":"Échange avec","adGives":"donne","adDay":"Jour","adSave":"Enregistrer l'échange","adDays":"Jours des échanges","adDaysNote":"Change le jour si un échange a été marqué fait le mauvais jour. Chaque joueur peut faire 2 échanges par jour.","adNoHave":"{a} n'a pas {x}.","adSame":"Les deux cartes doivent être de la même couleur.","adPick":"Choisis deux joueurs différents."}};
+for(const l in EXTRA8)Object.assign(I18N[l],EXTRA8[l]);
 
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
@@ -236,7 +244,8 @@ const slug=name=>name.toLowerCase().replace(/ı/g,'i').normalize('NFD').replace(
 function claudeAdapter(db){return{
   subPlayers:(cb,err)=>db.collection('players').onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
   subConfig:cb=>db.doc('config/main').onSnapshot(d=>cb(d.exists?d.data():{})),
-  subTrades:cb=>db.collection('trades').orderBy('at','desc').limit(500).onSnapshot(s=>cb(s.docs.map(d=>d.data()))),
+  subTrades:cb=>db.collection('trades').orderBy('at','desc').limit(500).onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()})))),
+  updateTrade:(id,data)=>db.doc('trades/'+id).update(data),
   updatePlayer:(pid,f,sh)=>{const d={};if(Object.keys(f).length)d.a=f;if(sh!=null)d.shards=sh;return db.doc('players/'+pid).update(d)},
   setPlayer:(id,data)=>db.doc('players/'+id).set(data),
   deletePlayer:id=>db.doc('players/'+id).delete(),
@@ -251,7 +260,8 @@ async function firebaseAdapter(cfg,team){
   return{
     subPlayers:(cb,err)=>fs.onSnapshot(col('players'),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
     subConfig:cb=>fs.onSnapshot(doc('meta','config'),d=>cb(d.exists()?d.data():{})),
-    subTrades:cb=>fs.onSnapshot(fs.query(col('trades'),fs.orderBy('at','desc'),fs.limit(500)),s=>cb(s.docs.map(d=>d.data()))),
+    subTrades:cb=>fs.onSnapshot(fs.query(col('trades'),fs.orderBy('at','desc'),fs.limit(500)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()})))),
+    updateTrade:(id,data)=>fs.updateDoc(doc('trades',id),data),
     updatePlayer:(pid,f,sh)=>{const u={};for(const k in f)u['a.'+k]=f[k];if(sh!=null)u.shards=sh;return fs.updateDoc(doc('players',pid),u)},
     setPlayer:(id,data)=>fs.setDoc(doc('players',id),data),
     deletePlayer:id=>fs.deleteDoc(doc('players',id)),
@@ -431,7 +441,7 @@ const canEdit=()=>!!S.api&&!S.ro;
 function nm(id){return esc(S.players[id]?.name||'?')}
 function renderChrome(){
   document.documentElement.lang=S.lang;$('#lang').value=S.lang;$('#sub').textContent=T('sub');
-  const tl={plan:'tabPlan',ishod:'tabOut',stanje:'tabCol',rupe:'tabGaps',istorija:'tabHist'};
+  const tl={plan:'tabPlan',ishod:'tabOut',stanje:'tabCol',rupe:'tabGaps',istorija:'tabHist',admin:'tabAdmin'};
   document.querySelectorAll('.tabs button').forEach(b=>{b.textContent=T(tl[b.dataset.tab]);b.setAttribute('aria-selected',b.dataset.tab===S.tab)});
   const cl=$('#copylink');cl.hidden=!FIREBASE_CONFIG||!S.api;cl.textContent=T('copyLink');
   let h='';
@@ -580,11 +590,48 @@ function renderIstorija(){
   if(!list.length){el.innerHTML=`<div class="empty">${esc(T('noHist'))}</div>`;return}
   el.innerHTML=list.slice(0,200).map(t=>`<div class="hole"><span class="lbl">${esc(t.day)}</span><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join('');
 }
+/* ---------- admin: custom trades and trade days ---------- */
+S.ct={a:'',b:'',gk:'g1',gi:0,rk:'g1',ri:0,day:''};
+function renderAdmin(){
+  const el=$('#tab-admin');const c=S.ct;if(!c.day)c.day=today();
+  const pl=playerList();
+  const pOpt=v=>`<option value=""></option>`+pl.map(p=>`<option value="${esc(p.id)}" ${p.id===v?'selected':''}>${esc(p.name)}</option>`).join('');
+  const aOpt=v=>COLORS.map(col=>`<optgroup label="${esc(T(col.k))}">`+KEYS(col).map(k=>`<option value="${k}" ${k===v?'selected':''}>${esc(albumName(k))}</option>`).join('')+'</optgroup>').join('');
+  const iOpt=(k,v,pid)=>{const s=pid&&S.players[pid]?str(S.players[pid],k):'';return Array.from({length:ALB[k].n},(_,i)=>`<option value="${i}" ${i===v?'selected':''}>#${i+1}${s?` (${s[i]})`:''}</option>`).join('')};
+  const dis=canEdit()?'':'disabled';
+  let h=`<h3 class="lbl">${esc(T('adCustom'))}</h3><p class="note">${esc(T('adCustomNote'))}</p>
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adFrom'))}</span><select id="ctA" ${dis}>${pOpt(c.a)}</select></label>
+   <span class="lbl">${esc(T('adGives'))}</span><select id="ctGk" ${dis}>${aOpt(c.gk)}</select><select id="ctGi" ${dis}>${iOpt(c.gk,c.gi,c.a)}</select></div>
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adTo'))}</span><select id="ctB" ${dis}>${pOpt(c.b)}</select></label>
+   <span class="lbl">${esc(T('adGives'))}</span><select id="ctRk" ${dis}>${aOpt(c.rk)}</select><select id="ctRi" ${dis}>${iOpt(c.rk,c.ri,c.b)}</select></div>
+  <div class="row" style="gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adDay'))}</span><input type="date" id="ctDay" value="${esc(c.day)}" ${dis}></label><button class="btn primary" id="ctSave" ${dis}>${esc(T('adSave'))}</button></div>
+  <h3 class="lbl" style="margin-top:22px">${esc(T('adDays'))}</h3><p class="note">${esc(T('adDaysNote'))}</p>`;
+  const list=S.trades.filter(t=>t.id&&ALB[t.give?.k]&&ALB[t.get?.k]).slice(0,100);
+  h+=list.length?list.map(t=>`<div class="hole"><input type="date" data-tday="${esc(t.id)}" value="${esc(t.day||'')}" ${dis}><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join(''):`<div class="empty">${esc(T('noHist'))}</div>`;
+  el.innerHTML=h;
+}
+async function saveCustomTrade(){
+  const c=S.ct;if(!canEdit())return;
+  if(!c.a||!c.b||c.a===c.b){toast(T('adPick'));return}
+  if(ALB[c.gk].c!==ALB[c.rk].c){toast(T('adSame'));return}
+  const A=S.players[c.a],B=S.players[c.b];if(!A||!B)return;
+  if(str(A,c.gk)[c.gi]==='0'){toast(T('adNoHave',{a:A.name,x:albumName(c.gk)+' #'+(c.gi+1)}));return}
+  if(str(B,c.rk)[c.ri]==='0'){toast(T('adNoHave',{a:B.name,x:albumName(c.rk)+' #'+(c.ri+1)}));return}
+  const tr={req:c.a,acc:c.b,give:{k:c.gk,i:c.gi},get:{k:c.rk,i:c.ri}};
+  const changes=[{pid:c.a,k:c.gk,i:c.gi,d:-1},{pid:c.b,k:c.gk,i:c.gi,d:1},{pid:c.b,k:c.rk,i:c.ri,d:-1},{pid:c.a,k:c.rk,i:c.ri,d:1}];
+  const btn=$('#ctSave');if(btn)btn.disabled=true;
+  if(S.api.adjust){S.writing._trade=true;renderSave();
+    try{await S.api.adjust(changes);S.lastSaved=Date.now();S.saveErr=false}catch(e){S.writing._trade=false;S.saveErr=true;handleWriteErr(e);renderSave();return}
+    S.writing._trade=false;renderSave();
+  }else for(const x of changes)addDelta(x.pid,x.k,x.i,x.d);
+  try{await S.api.addTrade({at:Date.now(),day:c.day||today(),...tr,custom:true});toast(T('saved'))}catch(e){handleWriteErr(e)}
+  render();
+}
 function render(){
   renderChrome();
   if(!$('#tab-plan'))return;
-  for(const t of ['plan','ishod','stanje','rupe','istorija'])$('#tab-'+t).hidden=t!==S.tab;
-  ({plan:renderPlan,ishod:renderIshod,stanje:renderStanje,rupe:renderRupe,istorija:renderIstorija})[S.tab]();
+  for(const t of ['plan','ishod','stanje','rupe','istorija','admin'])$('#tab-'+t).hidden=t!==S.tab;
+  ({plan:renderPlan,ishod:renderIshod,stanje:renderStanje,rupe:renderRupe,istorija:renderIstorija,admin:renderAdmin})[S.tab]();
 }
 
 /* ---------- events ---------- */
@@ -606,10 +653,17 @@ document.addEventListener('click',async e=>{
     try{await S.api.deletePlayer(p.id);toast(T('removed',{n:p.name}));S.sel=null}catch(err){handleWriteErr(err)}return}
   if(b.id==='copylink'){const url=location.href;try{await navigator.clipboard.writeText(url);toast(T('copied'))}catch(_){toast(url)}return}
   if(b.id==='createteam'){b.disabled=true;createTeam();return}
+  if(b.id==='ctSave'){saveCustomTrade();return}
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
   if(e.target.id==='stratsel'&&canEdit()){S.config.strategy=e.target.value;S.api.setConfig({strategy:e.target.value}).catch(handleWriteErr);render();return}
+  {const m={ctA:'a',ctB:'b',ctGk:'gk',ctRk:'rk',ctGi:'gi',ctRi:'ri',ctDay:'day'}[e.target.id];
+   if(m){const v=e.target.value;S.ct[m]=(m==='gi'||m==='ri')?+v:v;if(m==='gk'||m==='a')S.ct.gi=m==='gk'?0:S.ct.gi;if(m==='rk')S.ct.ri=0;
+     if(m==='gk'&&ALB[S.ct.rk].c!==ALB[v].c){S.ct.rk=v;S.ct.ri=0}if(m==='rk'&&ALB[S.ct.gk].c!==ALB[v].c){S.ct.gk=v;S.ct.gi=0}renderAdmin();return}}
+  if(e.target.dataset&&e.target.dataset.tday&&canEdit()){const v=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;
+    const t=S.trades.find(x=>x.id===e.target.dataset.tday);if(t)t.day=v;
+    S.api.updateTrade(e.target.dataset.tday,{day:v}).then(()=>toast(T('saved'))).catch(handleWriteErr);return}
   if(e.target.id==='lang'){S.lang=e.target.value;ls.set('lang',S.lang);if($('#createteam'))showWelcome();else render()}
 });
 document.addEventListener('submit',async e=>{
