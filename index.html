@@ -218,11 +218,11 @@ const EXTRA7={"en":{"svSaving":"Saving…","svSaved":"✓ Saved","svFail":"⚠ N
 "es":{"svSaving":"Guardando…","svSaved":"✓ Guardado","svFail":"⚠ No guardado: revisa la conexión e inténtalo de nuevo"},
 "fr":{"svSaving":"Enregistrement…","svSaved":"✓ Enregistré","svFail":"⚠ Non enregistré – vérifie la connexion et réessaie"}};
 for(const l in EXTRA7)Object.assign(I18N[l],EXTRA7[l]);
-const EXTRA8={"en":{"tabAdmin":"Admin","adCustom":"Add a trade","adCustomNote":"Record a trade that was done in the game but is not in the plan. Both players' cards are updated.","adFrom":"Player","adTo":"Trades with","adGives":"gives","adDay":"Day","adSave":"Save trade","adDays":"Trade days","adDaysNote":"Change the day if a trade was marked Done on the wrong day. Each player can do 2 trades per day.","adNoHave":"{a} does not have {x}.","adSame":"Both cards must be the same colour.","adPick":"Choose two different players."},
-"de":{"tabAdmin":"Admin","adCustom":"Tausch hinzufügen","adCustomNote":"Einen Tausch eintragen, der im Spiel gemacht wurde, aber nicht im Plan steht. Die Karten beider Spieler werden angepasst.","adFrom":"Spieler","adTo":"Tauscht mit","adGives":"gibt","adDay":"Tag","adSave":"Tausch speichern","adDays":"Tauschtage","adDaysNote":"Den Tag ändern, wenn ein Tausch am falschen Tag als erledigt markiert wurde. Jeder Spieler kann 2 Tausche pro Tag machen.","adNoHave":"{a} hat {x} nicht.","adSame":"Beide Karten müssen dieselbe Farbe haben.","adPick":"Wähle zwei verschiedene Spieler."},
-"tr":{"tabAdmin":"Yönetici","adCustom":"Takas ekle","adCustomNote":"Oyunda yapılan ama planda olmayan bir takası kaydet. İki oyuncunun kartları güncellenir.","adFrom":"Oyuncu","adTo":"Takas yaptığı","adGives":"veriyor","adDay":"Gün","adSave":"Takası kaydet","adDays":"Takas günleri","adDaysNote":"Bir takas yanlış günde tamamlandı olarak işaretlendiyse günü değiştir. Her oyuncu günde 2 takas yapabilir.","adNoHave":"{a} oyuncusunda {x} yok.","adSame":"İki kart aynı renkte olmalı.","adPick":"İki farklı oyuncu seç."},
-"es":{"tabAdmin":"Admin","adCustom":"Añadir intercambio","adCustomNote":"Registra un intercambio hecho en el juego que no está en el plan. Se actualizan las cartas de ambos jugadores.","adFrom":"Jugador","adTo":"Intercambia con","adGives":"da","adDay":"Día","adSave":"Guardar intercambio","adDays":"Días de intercambio","adDaysNote":"Cambia el día si un intercambio se marcó como hecho el día equivocado. Cada jugador puede hacer 2 intercambios al día.","adNoHave":"{a} no tiene {x}.","adSame":"Las dos cartas deben ser del mismo color.","adPick":"Elige dos jugadores distintos."},
-"fr":{"tabAdmin":"Admin","adCustom":"Ajouter un échange","adCustomNote":"Enregistre un échange fait dans le jeu mais absent du plan. Les cartes des deux joueurs sont mises à jour.","adFrom":"Joueur","adTo":"Échange avec","adGives":"donne","adDay":"Jour","adSave":"Enregistrer l'échange","adDays":"Jours des échanges","adDaysNote":"Change le jour si un échange a été marqué fait le mauvais jour. Chaque joueur peut faire 2 échanges par jour.","adNoHave":"{a} n'a pas {x}.","adSame":"Les deux cartes doivent être de la même couleur.","adPick":"Choisis deux joueurs différents."}};
+const EXTRA8={"en":{"tabAdmin":"Admin","adCustom":"Add a trade","adCustomNote":"Choose two players to see every trade where both get a card they are missing. Saving a trade updates both players' cards.","adNone":"No possible trades between these two players right now.","adFrom":"Player","adTo":"Trades with","adGives":"gives","adDay":"Day","adSave":"Save trade","adDays":"Trade days","adDaysNote":"Change the day if a trade was marked Done on the wrong day. Each player can do 2 trades per day.","adNoHave":"{a} does not have {x}.","adSame":"Both cards must be the same colour.","adPick":"Choose two different players."},
+"de":{"tabAdmin":"Admin","adCustom":"Tausch hinzufügen","adCustomNote":"Wähle zwei Spieler, um alle Tausche zu sehen, bei denen beide eine fehlende Karte bekommen. Beim Speichern werden die Karten beider Spieler angepasst.","adNone":"Zwischen diesen beiden Spielern ist gerade kein Tausch möglich.","adFrom":"Spieler","adTo":"Tauscht mit","adGives":"gibt","adDay":"Tag","adSave":"Tausch speichern","adDays":"Tauschtage","adDaysNote":"Den Tag ändern, wenn ein Tausch am falschen Tag als erledigt markiert wurde. Jeder Spieler kann 2 Tausche pro Tag machen.","adNoHave":"{a} hat {x} nicht.","adSame":"Beide Karten müssen dieselbe Farbe haben.","adPick":"Wähle zwei verschiedene Spieler."},
+"tr":{"tabAdmin":"Yönetici","adCustom":"Takas ekle","adCustomNote":"İkisinin de eksik bir kart aldığı tüm takasları görmek için iki oyuncu seç. Kaydetmek iki oyuncunun kartlarını günceller.","adNone":"Bu iki oyuncu arasında şu anda olası takas yok.","adFrom":"Oyuncu","adTo":"Takas yaptığı","adGives":"veriyor","adDay":"Gün","adSave":"Takası kaydet","adDays":"Takas günleri","adDaysNote":"Bir takas yanlış günde tamamlandı olarak işaretlendiyse günü değiştir. Her oyuncu günde 2 takas yapabilir.","adNoHave":"{a} oyuncusunda {x} yok.","adSame":"İki kart aynı renkte olmalı.","adPick":"İki farklı oyuncu seç."},
+"es":{"tabAdmin":"Admin","adCustom":"Añadir intercambio","adCustomNote":"Elige dos jugadores para ver todos los intercambios en los que ambos reciben una carta que les falta. Al guardar se actualizan las cartas de ambos.","adNone":"Ahora no hay intercambios posibles entre estos dos jugadores.","adFrom":"Jugador","adTo":"Intercambia con","adGives":"da","adDay":"Día","adSave":"Guardar intercambio","adDays":"Días de intercambio","adDaysNote":"Cambia el día si un intercambio se marcó como hecho el día equivocado. Cada jugador puede hacer 2 intercambios al día.","adNoHave":"{a} no tiene {x}.","adSame":"Las dos cartas deben ser del mismo color.","adPick":"Elige dos jugadores distintos."},
+"fr":{"tabAdmin":"Admin","adCustom":"Ajouter un échange","adCustomNote":"Choisis deux joueurs pour voir tous les échanges où chacun reçoit une carte qui lui manque. L'enregistrement met à jour les cartes des deux joueurs.","adNone":"Aucun échange possible entre ces deux joueurs pour le moment.","adFrom":"Joueur","adTo":"Échange avec","adGives":"donne","adDay":"Jour","adSave":"Enregistrer l'échange","adDays":"Jours des échanges","adDaysNote":"Change le jour si un échange a été marqué fait le mauvais jour. Chaque joueur peut faire 2 échanges par jour.","adNoHave":"{a} n'a pas {x}.","adSame":"Les deux cartes doivent être de la même couleur.","adPick":"Choisis deux joueurs différents."}};
 for(const l in EXTRA8)Object.assign(I18N[l],EXTRA8[l]);
 
 
@@ -591,35 +591,42 @@ function renderIstorija(){
   el.innerHTML=list.slice(0,200).map(t=>`<div class="hole"><span class="lbl">${esc(t.day)}</span><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join('');
 }
 /* ---------- admin: custom trades and trade days ---------- */
-S.ct={a:'',b:'',gk:'g1',gi:0,rk:'g1',ri:0,day:''};
+S.ct={a:'',b:'',day:''};
+/* All trades between two players where each gives a spare (2+ copies) of a piece the other is missing, same colour. */
+function pairTrades(a,b){
+  const A=S.players[a],B=S.players[b];if(!A||!B)return[];const out=[];
+  for(const col of COLORS){const fromA=[],fromB=[];
+    for(const k of KEYS(col)){const sa=str(A,k),sb=str(B,k);
+      for(let i=0;i<sa.length;i++){if(+sa[i]>=2&&sb[i]==='0')fromA.push({k,i});if(+sb[i]>=2&&sa[i]==='0')fromB.push({k,i})}}
+    for(const x of fromA)for(const y of fromB)out.push({col:col.k,give:x,get:y})}
+  return out;
+}
 function renderAdmin(){
   const el=$('#tab-admin');const c=S.ct;if(!c.day)c.day=today();
   const pl=playerList();
   const pOpt=v=>`<option value=""></option>`+pl.map(p=>`<option value="${esc(p.id)}" ${p.id===v?'selected':''}>${esc(p.name)}</option>`).join('');
-  const aOpt=v=>COLORS.map(col=>`<optgroup label="${esc(T(col.k))}">`+KEYS(col).map(k=>`<option value="${k}" ${k===v?'selected':''}>${esc(albumName(k))}</option>`).join('')+'</optgroup>').join('');
-  const iOpt=(k,v,pid)=>{const s=pid&&S.players[pid]?str(S.players[pid],k):'';return Array.from({length:ALB[k].n},(_,i)=>`<option value="${i}" ${i===v?'selected':''}>#${i+1}${s?` (${s[i]})`:''}</option>`).join('')};
   const dis=canEdit()?'':'disabled';
   let h=`<h3 class="lbl">${esc(T('adCustom'))}</h3><p class="note">${esc(T('adCustomNote'))}</p>
-  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adFrom'))}</span><select id="ctA" ${dis}>${pOpt(c.a)}</select></label>
-   <span class="lbl">${esc(T('adGives'))}</span><select id="ctGk" ${dis}>${aOpt(c.gk)}</select><select id="ctGi" ${dis}>${iOpt(c.gk,c.gi,c.a)}</select></div>
-  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adTo'))}</span><select id="ctB" ${dis}>${pOpt(c.b)}</select></label>
-   <span class="lbl">${esc(T('adGives'))}</span><select id="ctRk" ${dis}>${aOpt(c.rk)}</select><select id="ctRi" ${dis}>${iOpt(c.rk,c.ri,c.b)}</select></div>
-  <div class="row" style="gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adDay'))}</span><input type="date" id="ctDay" value="${esc(c.day)}" ${dis}></label><button class="btn primary" id="ctSave" ${dis}>${esc(T('adSave'))}</button></div>
-  <h3 class="lbl" style="margin-top:22px">${esc(T('adDays'))}</h3><p class="note">${esc(T('adDaysNote'))}</p>`;
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0"><label class="row"><span class="lbl">${esc(T('adFrom'))}</span><select id="ctA">${pOpt(c.a)}</select></label>
+   <label class="row"><span class="lbl">${esc(T('adTo'))}</span><select id="ctB">${pOpt(c.b)}</select></label>
+   <label class="row"><span class="lbl">${esc(T('adDay'))}</span><input type="date" id="ctDay" value="${esc(c.day)}" ${dis}></label></div>`;
+  if(c.a&&c.b&&c.a!==c.b){const list=pairTrades(c.a,c.b);el._ct=list;
+    h+=list.length?list.map((t,n)=>`<div class="hole"><span class="m">${T('gave',{a:`<b>${nm(c.a)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(c.b)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span><button class="btn" data-ctn="${n}" ${dis}>${esc(T('adSave'))}</button></div>`).join('')
+      :`<div class="empty">${esc(T('adNone'))}</div>`;
+  }else if(c.a&&c.a===c.b)h+=`<div class="empty">${esc(T('adPick'))}</div>`;
+  h+=`<h3 class="lbl" style="margin-top:22px">${esc(T('adDays'))}</h3><p class="note">${esc(T('adDaysNote'))}</p>`;
   const list=S.trades.filter(t=>t.id&&ALB[t.give?.k]&&ALB[t.get?.k]).slice(0,100);
   h+=list.length?list.map(t=>`<div class="hole"><input type="date" data-tday="${esc(t.id)}" value="${esc(t.day||'')}" ${dis}><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join(''):`<div class="empty">${esc(T('noHist'))}</div>`;
   el.innerHTML=h;
 }
-async function saveCustomTrade(){
-  const c=S.ct;if(!canEdit())return;
-  if(!c.a||!c.b||c.a===c.b){toast(T('adPick'));return}
-  if(ALB[c.gk].c!==ALB[c.rk].c){toast(T('adSame'));return}
+async function saveCustomTrade(t,btn){
+  const c=S.ct;if(!canEdit()||!t)return;
   const A=S.players[c.a],B=S.players[c.b];if(!A||!B)return;
-  if(str(A,c.gk)[c.gi]==='0'){toast(T('adNoHave',{a:A.name,x:albumName(c.gk)+' #'+(c.gi+1)}));return}
-  if(str(B,c.rk)[c.ri]==='0'){toast(T('adNoHave',{a:B.name,x:albumName(c.rk)+' #'+(c.ri+1)}));return}
+  if(+str(A,t.give.k)[t.give.i]<1||+str(B,t.get.k)[t.get.i]<1){render();return}
+  c.gk=t.give.k;c.gi=t.give.i;c.rk=t.get.k;c.ri=t.get.i;
   const tr={req:c.a,acc:c.b,give:{k:c.gk,i:c.gi},get:{k:c.rk,i:c.ri}};
   const changes=[{pid:c.a,k:c.gk,i:c.gi,d:-1},{pid:c.b,k:c.gk,i:c.gi,d:1},{pid:c.b,k:c.rk,i:c.ri,d:-1},{pid:c.a,k:c.rk,i:c.ri,d:1}];
-  const btn=$('#ctSave');if(btn)btn.disabled=true;
+  if(btn)btn.disabled=true;
   if(S.api.adjust){S.writing._trade=true;renderSave();
     try{await S.api.adjust(changes);S.lastSaved=Date.now();S.saveErr=false}catch(e){S.writing._trade=false;S.saveErr=true;handleWriteErr(e);renderSave();return}
     S.writing._trade=false;renderSave();
@@ -653,14 +660,12 @@ document.addEventListener('click',async e=>{
     try{await S.api.deletePlayer(p.id);toast(T('removed',{n:p.name}));S.sel=null}catch(err){handleWriteErr(err)}return}
   if(b.id==='copylink'){const url=location.href;try{await navigator.clipboard.writeText(url);toast(T('copied'))}catch(_){toast(url)}return}
   if(b.id==='createteam'){b.disabled=true;createTeam();return}
-  if(b.id==='ctSave'){saveCustomTrade();return}
+  if(b.dataset.ctn!=null){saveCustomTrade(($('#tab-admin')._ct||[])[+b.dataset.ctn],b);return}
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
   if(e.target.id==='stratsel'&&canEdit()){S.config.strategy=e.target.value;S.api.setConfig({strategy:e.target.value}).catch(handleWriteErr);render();return}
-  {const m={ctA:'a',ctB:'b',ctGk:'gk',ctRk:'rk',ctGi:'gi',ctRi:'ri',ctDay:'day'}[e.target.id];
-   if(m){const v=e.target.value;S.ct[m]=(m==='gi'||m==='ri')?+v:v;if(m==='gk'||m==='a')S.ct.gi=m==='gk'?0:S.ct.gi;if(m==='rk')S.ct.ri=0;
-     if(m==='gk'&&ALB[S.ct.rk].c!==ALB[v].c){S.ct.rk=v;S.ct.ri=0}if(m==='rk'&&ALB[S.ct.gk].c!==ALB[v].c){S.ct.gk=v;S.ct.gi=0}renderAdmin();return}}
+  {const m={ctA:'a',ctB:'b',ctDay:'day'}[e.target.id];if(m){S.ct[m]=e.target.value;renderAdmin();return}}
   if(e.target.dataset&&e.target.dataset.tday&&canEdit()){const v=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;
     const t=S.trades.find(x=>x.id===e.target.dataset.tday);if(t)t.day=v;
     S.api.updateTrade(e.target.dataset.tday,{day:v}).then(()=>toast(T('saved'))).catch(handleWriteErr);return}
