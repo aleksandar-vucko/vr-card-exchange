@@ -224,6 +224,12 @@ const EXTRA8={"en":{"tabAdmin":"Admin","adCustom":"Add a trade","adCustomNote":"
 "es":{"tabAdmin":"Admin","adCustom":"Añadir intercambio","adCustomNote":"Elige dos jugadores para ver todos los intercambios en los que ambos reciben una carta que les falta. Al guardar se actualizan las cartas de ambos.","adNone":"Ahora no hay intercambios posibles entre estos dos jugadores.","adFrom":"Jugador","adTo":"Intercambia con","adGives":"da","adDay":"Día","adSave":"Guardar intercambio","adDays":"Días de intercambio","adDaysNote":"Cambia el día si un intercambio se marcó como hecho el día equivocado. Cada jugador puede hacer 2 intercambios al día.","adNoHave":"{a} no tiene {x}.","adSame":"Las dos cartas deben ser del mismo color.","adPick":"Elige dos jugadores distintos."},
 "fr":{"tabAdmin":"Admin","adCustom":"Ajouter un échange","adCustomNote":"Choisis deux joueurs pour voir tous les échanges où chacun reçoit une carte qui lui manque. L'enregistrement met à jour les cartes des deux joueurs.","adNone":"Aucun échange possible entre ces deux joueurs pour le moment.","adFrom":"Joueur","adTo":"Échange avec","adGives":"donne","adDay":"Jour","adSave":"Enregistrer l'échange","adDays":"Jours des échanges","adDaysNote":"Change le jour si un échange a été marqué fait le mauvais jour. Chaque joueur peut faire 2 échanges par jour.","adNoHave":"{a} n'a pas {x}.","adSame":"Les deux cartes doivent être de la même couleur.","adPick":"Choisis deux joueurs différents."}};
 for(const l in EXTRA8)Object.assign(I18N[l],EXTRA8[l]);
+const EXTRA9={"en":{"adSuggested":"Suggested trades","adManual":"Pick the cards yourself","adManualNote":"Lists show only spare cards (2+ copies). The second card must be the same colour as the first.","adGetsFrom":"{a} gets from {b}","adDupMark":"duplicate","adChoose":"Choose a card"},
+"de":{"adSuggested":"Vorgeschlagene Tausche","adManual":"Karten selbst auswählen","adManualNote":"Die Listen zeigen nur Ersatzkarten (2+ Exemplare). Die zweite Karte muss dieselbe Farbe wie die erste haben.","adGetsFrom":"{a} bekommt von {b}","adDupMark":"Duplikat","adChoose":"Karte wählen"},
+"tr":{"adSuggested":"Önerilen takaslar","adManual":"Kartları kendin seç","adManualNote":"Listeler yalnızca yedek kartları (2+ kopya) gösterir. İkinci kart ilkiyle aynı renkte olmalı.","adGetsFrom":"{a}, {b} oyuncusundan alır","adDupMark":"kopya","adChoose":"Kart seç"},
+"es":{"adSuggested":"Intercambios sugeridos","adManual":"Elegir las cartas tú mismo","adManualNote":"Las listas muestran solo cartas sobrantes (2+ copias). La segunda carta debe ser del mismo color que la primera.","adGetsFrom":"{a} recibe de {b}","adDupMark":"duplicado","adChoose":"Elige una carta"},
+"fr":{"adSuggested":"Échanges suggérés","adManual":"Choisir les cartes soi-même","adManualNote":"Les listes ne montrent que les cartes en double (2+ exemplaires). La deuxième carte doit être de la même couleur que la première.","adGetsFrom":"{a} reçoit de {b}","adDupMark":"doublon","adChoose":"Choisis une carte"}};
+for(const l in EXTRA9)Object.assign(I18N[l],EXTRA9[l]);
 
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
@@ -601,6 +607,26 @@ function pairTrades(a,b){
     for(const x of fromA)for(const y of fromB)out.push({col:col.k,give:x,get:y})}
   return out;
 }
+/* Spare cards (2+ copies) that `from` can give to `to`; dup = `to` already owns it. */
+function spareCards(from,to){
+  const F=S.players[from],Tp=S.players[to];if(!F||!Tp)return[];const out=[];
+  for(const col of COLORS)for(const k of KEYS(col)){const sf=str(F,k),st=str(Tp,k);
+    for(let i=0;i<sf.length;i++)if(+sf[i]>=2)out.push({k,i,col:col.k,dup:st[i]!=='0'})}
+  return out;
+}
+function manualPickHtml(c,dis){
+  const getL=spareCards(c.b,c.a);
+  const gsel=getL.find(x=>x.k+':'+x.i===c.mget);if(!gsel)c.mget='';
+  const giveL=spareCards(c.a,c.b).filter(x=>!gsel||x.col===gsel.col);
+  if(!giveL.some(x=>x.k+':'+x.i===c.mgive))c.mgive='';
+  const opt=(L,v)=>`<option value="">${esc(T('adChoose'))}</option>`+L.map(x=>{const id=x.k+':'+x.i;return `<option value="${id}" ${id===v?'selected':''}>${esc(albumName(x.k))} #${x.i+1}${x.dup?' ('+esc(T('adDupMark'))+')':''}</option>`}).join('');
+  const ok=c.mget&&c.mgive;
+  return `<h3 class="lbl" style="margin-top:14px">${esc(T('adManual'))}</h3><p class="note">${esc(T('adManualNote'))}</p>
+  <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0">
+   <label class="row"><span class="lbl">${esc(T('adGetsFrom',{a:nm(c.a),b:nm(c.b)}))}</span><select id="ctMGet" ${dis}>${opt(getL,c.mget)}</select></label>
+   <label class="row"><span class="lbl">${esc(T('adGetsFrom',{a:nm(c.b),b:nm(c.a)}))}</span><select id="ctMGive" ${dis}>${opt(giveL,c.mgive)}</select></label>
+   <button class="btn" data-ctmanual="1" ${ok&&!dis?'':'disabled'}>${esc(T('adSave'))}</button></div>`;
+}
 function renderAdmin(){
   const el=$('#tab-admin');const c=S.ct;if(!c.day)c.day=today();
   const pl=playerList();
@@ -611,6 +637,7 @@ function renderAdmin(){
    <label class="row"><span class="lbl">${esc(T('adTo'))}</span><select id="ctB">${pOpt(c.b)}</select></label>
    <label class="row"><span class="lbl">${esc(T('adDay'))}</span><input type="date" id="ctDay" value="${esc(c.day)}" ${dis}></label></div>`;
   if(c.a&&c.b&&c.a!==c.b){const list=pairTrades(c.a,c.b);el._ct=list;
+    h+=manualPickHtml(c,dis)+`<h3 class="lbl" style="margin-top:14px">${esc(T('adSuggested'))}</h3>`;
     h+=list.length?list.map((t,n)=>`<div class="hole"><span class="m">${T('gave',{a:`<b>${nm(c.a)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(c.b)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span><button class="btn" data-ctn="${n}" ${dis}>${esc(T('adSave'))}</button></div>`).join('')
       :`<div class="empty">${esc(T('adNone'))}</div>`;
   }else if(c.a&&c.a===c.b)h+=`<div class="empty">${esc(T('adPick'))}</div>`;
@@ -660,12 +687,15 @@ document.addEventListener('click',async e=>{
     try{await S.api.deletePlayer(p.id);toast(T('removed',{n:p.name}));S.sel=null}catch(err){handleWriteErr(err)}return}
   if(b.id==='copylink'){const url=location.href;try{await navigator.clipboard.writeText(url);toast(T('copied'))}catch(_){toast(url)}return}
   if(b.id==='createteam'){b.disabled=true;createTeam();return}
+  if(b.dataset.ctmanual){const c=S.ct;if(!c.mget||!c.mgive)return;const[gk,gi]=c.mgive.split(':'),[rk,ri]=c.mget.split(':');
+    if(!ALB[gk]||!ALB[rk]||ALB[gk].c!==ALB[rk].c){toast(T('adSame'));return}
+    const t={give:{k:gk,i:+gi},get:{k:rk,i:+ri}};c.mget='';c.mgive='';saveCustomTrade(t,b);return}
   if(b.dataset.ctn!=null){saveCustomTrade(($('#tab-admin')._ct||[])[+b.dataset.ctn],b);return}
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
   if(e.target.id==='stratsel'&&canEdit()){S.config.strategy=e.target.value;S.api.setConfig({strategy:e.target.value}).catch(handleWriteErr);render();return}
-  {const m={ctA:'a',ctB:'b',ctDay:'day'}[e.target.id];if(m){S.ct[m]=e.target.value;renderAdmin();return}}
+  {const m={ctA:'a',ctB:'b',ctDay:'day',ctMGet:'mget',ctMGive:'mgive'}[e.target.id];if(m){S.ct[m]=e.target.value;if(m==='a'||m==='b'){S.ct.mget='';S.ct.mgive=''}renderAdmin();return}}
   if(e.target.dataset&&e.target.dataset.tday&&canEdit()){const v=e.target.value;if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;
     const t=S.trades.find(x=>x.id===e.target.dataset.tday);if(t)t.day=v;
     S.api.updateTrade(e.target.dataset.tday,{day:v}).then(()=>toast(T('saved'))).catch(handleWriteErr);return}
