@@ -230,6 +230,8 @@ const EXTRA9={"en":{"adSuggested":"Suggested trades","adManual":"Pick the cards 
 "es":{"adSuggested":"Intercambios sugeridos","adManual":"Elegir las cartas tú mismo","adManualNote":"Las listas muestran solo cartas sobrantes (2+ copias). La segunda carta debe ser del mismo color que la primera.","adGetsFrom":"{a} recibe de {b}","adDupMark":"duplicado","adChoose":"Elige una carta"},
 "fr":{"adSuggested":"Échanges suggérés","adManual":"Choisir les cartes soi-même","adManualNote":"Les listes ne montrent que les cartes en double (2+ exemplaires). La deuxième carte doit être de la même couleur que la première.","adGetsFrom":"{a} reçoit de {b}","adDupMark":"doublon","adChoose":"Choisis une carte"}};
 for(const l in EXTRA9)Object.assign(I18N[l],EXTRA9[l]);
+const EXTRA10={"en": {"adPlan": "Plan", "adPlanned": "Added to planned trades", "adPlannedT": "Planned trades", "adPlannedNote": "Cards move only when you press Done. Delete removes a trade from the plan without changing any cards. Done uses the Day chosen above.", "adDelete": "Delete", "adNoPlanned": "No planned trades.", "adGone": "One of these players no longer exists.", "adCustomNote": "Choose two players, then pick the cards or use a suggested trade. Plan adds it to the list below."}, "de": {"adPlan": "Planen", "adPlanned": "Zu geplanten Tauschen hinzugefügt", "adPlannedT": "Geplante Tausche", "adPlannedNote": "Karten werden erst verschoben, wenn du Erledigt drückst. Löschen entfernt einen Tausch aus dem Plan, ohne Karten zu ändern. Erledigt verwendet den oben gewählten Tag.", "adDelete": "Löschen", "adNoPlanned": "Keine geplanten Tausche.", "adGone": "Einer dieser Spieler existiert nicht mehr.", "adCustomNote": "Wähle zwei Spieler, dann die Karten oder einen vorgeschlagenen Tausch. Planen fügt ihn der Liste unten hinzu."}, "tr": {"adPlan": "Planla", "adPlanned": "Planlanan takaslara eklendi", "adPlannedT": "Planlanan takaslar", "adPlannedNote": "Kartlar yalnızca Yapıldı'ya bastığında taşınır. Sil, hiçbir kartı değiştirmeden takası plandan kaldırır. Yapıldı yukarıda seçilen günü kullanır.", "adDelete": "Sil", "adNoPlanned": "Planlanan takas yok.", "adGone": "Bu oyunculardan biri artık yok.", "adCustomNote": "İki oyuncu seç, sonra kartları seç ya da önerilen bir takası kullan. Planla, takası aşağıdaki listeye ekler."}, "es": {"adPlan": "Planificar", "adPlanned": "Añadido a intercambios planificados", "adPlannedT": "Intercambios planificados", "adPlannedNote": "Las cartas solo se mueven al pulsar Hecho. Eliminar quita el intercambio del plan sin cambiar cartas. Hecho usa el día elegido arriba.", "adDelete": "Eliminar", "adNoPlanned": "No hay intercambios planificados.", "adGone": "Uno de estos jugadores ya no existe.", "adCustomNote": "Elige dos jugadores y luego las cartas o un intercambio sugerido. Planificar lo añade a la lista de abajo."}, "fr": {"adPlan": "Planifier", "adPlanned": "Ajouté aux échanges planifiés", "adPlannedT": "Échanges planifiés", "adPlannedNote": "Les cartes ne bougent que quand tu appuies sur Fait. Supprimer retire l'échange du plan sans changer les cartes. Fait utilise le jour choisi plus haut.", "adDelete": "Supprimer", "adNoPlanned": "Aucun échange planifié.", "adGone": "L'un de ces joueurs n'existe plus.", "adCustomNote": "Choisis deux joueurs, puis les cartes ou un échange suggéré. Planifier l'ajoute à la liste ci-dessous."}};
+for(const l in EXTRA10)Object.assign(I18N[l],EXTRA10[l]);
 
 
 const S={api:null,ro:false,players:{},config:{mode:'total'},trades:[],pending:{},writing:{},tab:'plan',me:null,sel:null,editMode:'add',loaded:false,confirmDel:false,lang:'en'};
@@ -615,17 +617,37 @@ function spareCards(from,to){
   return out;
 }
 function manualPickHtml(c,dis){
-  const getL=spareCards(c.b,c.a);
+  const getL=spareCards(c.b,c.a).filter(x=>!x.dup);
   const gsel=getL.find(x=>x.k+':'+x.i===c.mget);if(!gsel)c.mget='';
   const giveL=spareCards(c.a,c.b).filter(x=>!gsel||x.col===gsel.col);
   if(!giveL.some(x=>x.k+':'+x.i===c.mgive))c.mgive='';
   const opt=(L,v)=>`<option value="">${esc(T('adChoose'))}</option>`+L.map(x=>{const id=x.k+':'+x.i;return `<option value="${id}" ${id===v?'selected':''}>${esc(albumName(x.k))} #${x.i+1}${x.dup?' ('+esc(T('adDupMark'))+')':''}</option>`}).join('');
-  const ok=c.mget&&c.mgive;
+  const ok=c.mget&&c.mgive;const t=ok?manualTrade(c):null;
   return `<h3 class="lbl" style="margin-top:14px">${esc(T('adManual'))}</h3><p class="note">${esc(T('adManualNote'))}</p>
   <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0">
    <label class="row"><span class="lbl">${esc(T('adGetsFrom',{a:nm(c.a),b:nm(c.b)}))}</span><select id="ctMGet" ${dis}>${opt(getL,c.mget)}</select></label>
    <label class="row"><span class="lbl">${esc(T('adGetsFrom',{a:nm(c.b),b:nm(c.a)}))}</span><select id="ctMGive" ${dis}>${opt(giveL,c.mgive)}</select></label>
-   <button class="btn" data-ctmanual="1" ${ok&&!dis?'':'disabled'}>${esc(T('adSave'))}</button></div>`;
+   <button class="btn" data-ctmanual="1" ${ok&&!dis?'':'disabled'}>${esc(T('adPlan'))}</button></div>
+  ${t?`<div class="hole"><span class="m">${esc(tradeText(t))}</span><button class="btn" data-copy="${esc(tradeText(t))}">${esc(T('copyBtn'))}</button></div>`:''}`;
+}
+function manualTrade(c){const[gk,gi]=c.mgive.split(':'),[rk,ri]=c.mget.split(':');return{req:c.a,acc:c.b,give:{k:gk,i:+gi},get:{k:rk,i:+ri}}}
+function plannedList(){return (S.config.planned||[]).filter(t=>t&&t.id&&ALB[t.give?.k]&&ALB[t.get?.k])}
+async function setPlanned(list){S.config.planned=list;renderAdmin();try{await S.api.setConfig({planned:list})}catch(e){handleWriteErr(e)}}
+async function addPlanned(t){if(!canEdit()||!t)return;await setPlanned([...plannedList(),{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),req:t.req,acc:t.acc,give:t.give,get:t.get,at:Date.now()}]);toast(T('adPlanned'))}
+/* Completes a planned trade: req gives `give` to acc and gets `get` back. */
+async function completePlanned(id,btn){
+  if(!canEdit())return;const t=plannedList().find(x=>x.id===id);if(!t)return;
+  const A=S.players[t.req],B=S.players[t.acc];if(!A||!B){toast(T('adGone'));return}
+  if(+str(A,t.give.k)[t.give.i]<1){toast(T('adNoHave',{a:A.name,x:albumName(t.give.k)+' #'+(t.give.i+1)}));return}
+  if(+str(B,t.get.k)[t.get.i]<1){toast(T('adNoHave',{a:B.name,x:albumName(t.get.k)+' #'+(t.get.i+1)}));return}
+  const changes=[{pid:t.req,k:t.give.k,i:t.give.i,d:-1},{pid:t.acc,k:t.give.k,i:t.give.i,d:1},{pid:t.acc,k:t.get.k,i:t.get.i,d:-1},{pid:t.req,k:t.get.k,i:t.get.i,d:1}];
+  if(btn)btn.disabled=true;
+  if(S.api.adjust){S.writing._trade=true;renderSave();
+    try{await S.api.adjust(changes);S.lastSaved=Date.now();S.saveErr=false}catch(e){S.writing._trade=false;S.saveErr=true;handleWriteErr(e);renderSave();if(btn)btn.disabled=false;return}
+    S.writing._trade=false;renderSave();
+  }else for(const x of changes)addDelta(x.pid,x.k,x.i,x.d);
+  try{await S.api.addTrade({at:Date.now(),day:S.ct.day||today(),req:t.req,acc:t.acc,give:t.give,get:t.get,custom:true})}catch(e){handleWriteErr(e)}
+  await setPlanned(plannedList().filter(x=>x.id!==id));toast(T('saved'));render();
 }
 function renderAdmin(){
   const el=$('#tab-admin');const c=S.ct;if(!c.day)c.day=today();
@@ -638,12 +660,12 @@ function renderAdmin(){
    <label class="row"><span class="lbl">${esc(T('adDay'))}</span><input type="date" id="ctDay" value="${esc(c.day)}" ${dis}></label></div>`;
   if(c.a&&c.b&&c.a!==c.b){const list=pairTrades(c.a,c.b);el._ct=list;
     h+=manualPickHtml(c,dis)+`<h3 class="lbl" style="margin-top:14px">${esc(T('adSuggested'))}</h3>`;
-    h+=list.length?list.map((t,n)=>`<div class="hole"><span class="m">${T('gave',{a:`<b>${nm(c.a)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(c.b)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span><button class="btn" data-ctn="${n}" ${dis}>${esc(T('adSave'))}</button></div>`).join('')
+    h+=list.length?list.map((t,n)=>`<div class="hole"><span class="m">${T('reqOffer',{a:`<b>${nm(c.a)}</b>`,y:pcHtml(t.get.k,t.get.i),x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(c.b)}</b>`})}</span><button class="btn" data-ctn="${n}" ${dis}>${esc(T('adPlan'))}</button></div>`).join('')
       :`<div class="empty">${esc(T('adNone'))}</div>`;
   }else if(c.a&&c.a===c.b)h+=`<div class="empty">${esc(T('adPick'))}</div>`;
-  h+=`<h3 class="lbl" style="margin-top:22px">${esc(T('adDays'))}</h3><p class="note">${esc(T('adDaysNote'))}</p>`;
-  const list=S.trades.filter(t=>t.id&&ALB[t.give?.k]&&ALB[t.get?.k]).slice(0,100);
-  h+=list.length?list.map(t=>`<div class="hole"><input type="date" data-tday="${esc(t.id)}" value="${esc(t.day||'')}" ${dis}><span class="m">${T('gave',{a:`<b>${nm(t.req)}</b>`,x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`,y:pcHtml(t.get.k,t.get.i)})}</span></div>`).join(''):`<div class="empty">${esc(T('noHist'))}</div>`;
+  const pl2=plannedList();
+  h+=`<h3 class="lbl" style="margin-top:22px">${esc(T('adPlannedT'))}</h3><p class="note">${esc(T('adPlannedNote'))}</p>`;
+  h+=pl2.length?pl2.map(t=>`<div class="hole"><span class="m">${T('reqOffer',{a:`<b>${nm(t.req)}</b>`,y:pcHtml(t.get.k,t.get.i),x:pcHtml(t.give.k,t.give.i),b:`<b>${nm(t.acc)}</b>`})}</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn" data-pdone="${esc(t.id)}" ${dis}>${esc(T('done'))}</button><button class="btn" data-copy="${esc(tradeText(t))}">${esc(T('copyBtn'))}</button><button class="btn" data-pdel="${esc(t.id)}" ${dis}>${esc(T('adDelete'))}</button></span></div>`).join(''):`<div class="empty">${esc(T('adNoPlanned'))}</div>`;
   el.innerHTML=h;
 }
 async function saveCustomTrade(t,btn){
@@ -689,8 +711,10 @@ document.addEventListener('click',async e=>{
   if(b.id==='createteam'){b.disabled=true;createTeam();return}
   if(b.dataset.ctmanual){const c=S.ct;if(!c.mget||!c.mgive)return;const[gk,gi]=c.mgive.split(':'),[rk,ri]=c.mget.split(':');
     if(!ALB[gk]||!ALB[rk]||ALB[gk].c!==ALB[rk].c){toast(T('adSame'));return}
-    const t={give:{k:gk,i:+gi},get:{k:rk,i:+ri}};c.mget='';c.mgive='';saveCustomTrade(t,b);return}
-  if(b.dataset.ctn!=null){saveCustomTrade(($('#tab-admin')._ct||[])[+b.dataset.ctn],b);return}
+    const t=manualTrade(c);c.mget='';c.mgive='';addPlanned(t);return}
+  if(b.dataset.pdone){completePlanned(b.dataset.pdone,b);return}
+  if(b.dataset.pdel){if(canEdit())setPlanned(plannedList().filter(x=>x.id!==b.dataset.pdel));return}
+  if(b.dataset.ctn!=null){const t=($('#tab-admin')._ct||[])[+b.dataset.ctn];if(t)addPlanned({req:S.ct.a,acc:S.ct.b,give:t.give,get:t.get});return}
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='me'){S.me=e.target.value||null;ls.set('me',S.me||'');render()}
@@ -739,7 +763,7 @@ async function runImports(){
 function startSubs(){
   S.api.subPlayers(list=>{const m={};for(const v of list)m[v.id]={id:v.id,name:v.name||v.id,order:v.order,a:v.a||{},shards:v.shards||0};S.players=m;S.loaded=true;render();runImports()},
     err=>{S.loaded=true;if(err&&err.code==='permission-denied')S.api=null;render()});
-  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total',strategy:(v&&v.strategy)||'focus',applied:(v&&v.applied)||[]};S.configLoaded=true;render();runImports()});
+  S.api.subConfig(v=>{S.config={mode:(v&&v.mode)||'total',strategy:(v&&v.strategy)||'focus',applied:(v&&v.applied)||[],planned:Array.isArray(v&&v.planned)?v.planned:[]};S.configLoaded=true;render();runImports()});
   S.api.subTrades(list=>{S.trades=list;render()});
 }
 const teamId=()=>{const h=location.hash.slice(1);return /^[A-Za-z0-9_-]{20,64}$/.test(h)?h:null};
